@@ -1,0 +1,38 @@
+- name: Create jellyfin group
+  ansible.builtin.group:
+    name: jellyfin
+    system: true
+
+- name: Create jellyfin user
+  ansible.builtin.user:
+    name: jellyfin
+    group: jellyfin
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+  register: jellyfin_user
+
+- name: Create jellyfin data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: jellyfin
+    group: jellyfin
+    mode: "0750"
+  loop:
+    - /srv/jellyfin
+    - /srv/jellyfin/config
+    - /srv/jellyfin/cache
+
+- name: Copy jellyfin compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/jellyfin/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start jellyfin
+  community.docker.docker_compose_v2:
+    project_src: /srv/jellyfin
+    state: present
