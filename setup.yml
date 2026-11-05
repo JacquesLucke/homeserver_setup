@@ -1,0 +1,9 @@
+- hosts: homeserver
+  become: true
+  tasks:
+    - name: Check Connection
+      ansible.builtin.ping:
+    - name: Install htop
+      ansible.builtin.package:
+        name: htop
+        state: present
