@@ -1,11 +1,3 @@
-- name: Check Connection
-  ansible.builtin.ping:
-
-- name: Install htop
-  ansible.builtin.package:
-    name: htop
-    state: present
-
 - name: Mount storage drive
   ansible.posix.mount:
     path: /mnt/storage
