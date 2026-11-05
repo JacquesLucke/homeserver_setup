@@ -1,0 +1,38 @@
+- name: Create audiobookshelf group
+  ansible.builtin.group:
+    name: audiobookshelf
+    system: true
+
+- name: Create audiobookshelf user
+  ansible.builtin.user:
+    name: audiobookshelf
+    group: audiobookshelf
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+  register: audiobookshelf_user
+
+- name: Create audiobookshelf data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: audiobookshelf
+    group: audiobookshelf
+    mode: "0750"
+  loop:
+    - /srv/audiobookshelf
+    - /srv/audiobookshelf/config
+    - /srv/audiobookshelf/metadata
+
+- name: Copy audiobookshelf compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/audiobookshelf/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start audiobookshelf
+  community.docker.docker_compose_v2:
+    project_src: /srv/audiobookshelf
+    state: present
