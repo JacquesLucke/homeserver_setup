@@ -1,7 +1,8 @@
 [project]
 name = "homeserver-setup"
 version = "0.1.0"
-requires-python = ">=3.15"
+# Python 3.15 is not yet supported by ansible.
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "ansible>=14.6.0",
     "ansible-lint>=26.11.0",
