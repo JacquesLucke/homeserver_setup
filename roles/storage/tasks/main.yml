@@ -1,0 +1,7 @@
+- name: Mount storage drive
+  ansible.posix.mount:
+    path: /mnt/storage
+    src: UUID=14d156db-35eb-4ee8-a475-06eea9c7571a
+    fstype: ext4
+    opts: defaults,nofail
+    state: mounted

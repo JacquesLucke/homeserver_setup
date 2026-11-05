@@ -2,5 +2,7 @@
   hosts: homeserver
   become: true
   roles:
-    - base
+    - storage
+    - docker
+    - tailscale
     - jellyfin
