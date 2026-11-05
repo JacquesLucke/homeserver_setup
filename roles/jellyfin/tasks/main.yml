@@ -12,6 +12,11 @@
     shell: /usr/sbin/nologin
   register: jellyfin_user
 
+- name: Look up the render group for GPU access
+  ansible.builtin.getent:
+    database: group
+    key: render
+
 - name: Create jellyfin data directories
   ansible.builtin.file:
     path: "{{ item }}"
