@@ -27,3 +27,43 @@
     name: docker
     state: started
     enabled: true
+
+- name: Add Tailscale signing key
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_facts['distribution_release'] }}.noarmor.gpg"
+    dest: "{{ base_tailscale_keyring }}"
+    mode: "0644"
+
+- name: Add Tailscale repository
+  ansible.builtin.copy:
+    content: |
+      deb [signed-by={{ base_tailscale_keyring }}] https://pkgs.tailscale.com/stable/ubuntu {{ ansible_facts['distribution_release'] }} main
+    dest: /etc/apt/sources.list.d/tailscale.list
+    mode: "0644"
+
+- name: Install Tailscale
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+    update_cache: true
+
+- name: Start Tailscale and enable it on boot
+  ansible.builtin.service:
+    name: tailscaled
+    state: started
+    enabled: true
+
+- name: Check Tailscale login state
+  ansible.builtin.command: tailscale status --json
+  register: base_tailscale_status
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Log in to Tailscale
+  ansible.builtin.command: tailscale up --auth-key={{ vault_tailscale_authkey }}
+  when: >-
+    base_tailscale_status.rc != 0
+    or (base_tailscale_status.stdout | from_json).BackendState != "Running"
+  changed_when: true
+  no_log: true
