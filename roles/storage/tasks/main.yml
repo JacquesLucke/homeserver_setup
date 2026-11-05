@@ -18,7 +18,7 @@
     path: /mnt/storage
     src: "{{ storage_branches | join(':') }}"
     fstype: fuse.mergerfs
-    opts: "cache.files=off,category.create=pfrd,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,nofail,{{ storage_requires }}"
+    opts: "cache.files=off,category.create=mspmfs,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,nofail,{{ storage_requires }}"
     state: mounted
   vars:
     storage_branches: "{{ storage_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | list }}"
