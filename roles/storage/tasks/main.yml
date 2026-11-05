@@ -1,7 +1,41 @@
-- name: Mount storage drive
+- name: Install mergerfs
+  ansible.builtin.apt:
+    name: mergerfs
+    state: present
+    update_cache: true
+
+- name: Mount data disks
   ansible.posix.mount:
-    path: /mnt/storage
-    src: UUID=14d156db-35eb-4ee8-a475-06eea9c7571a
-    fstype: ext4
+    path: "/mnt/{{ item.name }}"
+    src: "UUID={{ item.uuid }}"
+    fstype: "{{ item.fstype }}"
     opts: defaults,nofail
     state: mounted
+  loop: "{{ storage_disks }}"
+
+- name: Mount mergerfs pool
+  ansible.posix.mount:
+    path: /mnt/storage
+    src: "{{ storage_branches | join(':') }}"
+    fstype: fuse.mergerfs
+    opts: "cache.files=off,category.create=pfrd,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,nofail,{{ storage_requires }}"
+    state: mounted
+  vars:
+    storage_branches: "{{ storage_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | list }}"
+    # Only mount the pool once all disks are mounted.
+    storage_requires: "{{ storage_branches | map('regex_replace', '^', 'x-systemd.requires-mounts-for=') | join(',') }}"
+
+- name: Create Docker service override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    mode: "0755"
+
+- name: Make Docker wait for the storage pool on boot
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      After=mnt-storage.mount
+    dest: /etc/systemd/system/docker.service.d/wait-for-storage.conf
+    mode: "0644"
+  notify: Reload systemd
