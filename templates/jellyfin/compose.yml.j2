@@ -1,0 +1,11 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    user: "{{ jellyfin_user.uid }}:{{ jellyfin_user.group }}"
+    volumes:
+      - /srv/jellyfin/config:/config
+      - /srv/jellyfin/cache:/cache
+      - /mnt/storage:/media:ro
+    ports:
+      - 8096:8096
+    restart: unless-stopped
