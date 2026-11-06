@@ -1,0 +1,35 @@
+- name: Create beszel data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+  loop:
+    - /srv/beszel
+    - /srv/beszel/data
+    - /srv/beszel/socket
+    - /srv/beszel/agent
+
+- name: Create dummy beszel folders on the data disks to mount
+  ansible.builtin.file:
+    path: "/mnt/{{ item.name }}/.beszel"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ storage_disks }}"
+
+- name: Copy beszel compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/beszel/compose.yml
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Start beszel
+  community.docker.docker_compose_v2:
+    project_src: /srv/beszel
+    state: present
+    remove_orphans: true
