@@ -1,3 +1,11 @@
+# Homeserver Setup
+
+Ansible setup for my homeserver.
+
+## Preparation
+
+This requires an Ubuntu system with a user that is allowed to run sudo. Also see `inventory.ini` for the expected IP address and username.
+
 ```sh
 # Run on the machine controlling the server (not the server itself).
 uv run ansible-playbook setup.yml
