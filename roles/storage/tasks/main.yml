@@ -13,6 +13,15 @@
     state: mounted
   loop: "{{ storage_disks }}"
 
+- name: Make data disk roots accessible
+  ansible.builtin.file:
+    path: "/mnt/{{ item.name }}"
+    state: directory
+    owner: jacques
+    group: jacques
+    mode: "0755"
+  loop: "{{ storage_disks }}"
+
 - name: Mount mergerfs pool
   ansible.posix.mount:
     path: /mnt/storage
