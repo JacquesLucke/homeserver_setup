@@ -2,12 +2,12 @@ services:
   jellyfin:
     container_name: jellyfin
     image: jellyfin/jellyfin:latest
-    user: "{{ jellyfin_user.uid }}:{{ jellyfin_user.group }}"
+    user: "{{ ansible_facts.getent_passwd.jacques[1] }}:{{ ansible_facts.getent_passwd.jacques[2] }}"
     volumes:
       - /srv/jellyfin/config:/config
       - /srv/jellyfin/cache:/cache
-      - /mnt/storage/media/Movies:/media/Movies:ro
-      - /mnt/storage/media/Shows:/media/Shows:ro
+      - /mnt/storage/media/Movies:/media/Movies
+      - /mnt/storage/media/Shows:/media/Shows
     # Intel Quick Sync hardware transcoding
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128

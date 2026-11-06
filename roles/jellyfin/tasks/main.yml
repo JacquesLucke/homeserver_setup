@@ -1,16 +1,9 @@
-- name: Create jellyfin group
-  ansible.builtin.group:
-    name: jellyfin
-    system: true
-
-- name: Create jellyfin user
-  ansible.builtin.user:
-    name: jellyfin
-    group: jellyfin
-    system: true
-    create_home: false
-    shell: /usr/sbin/nologin
-  register: jellyfin_user
+# Jellyfin runs as jacques so it can store metadata next to the media files,
+# which are owned by jacques.
+- name: Look up the jacques user
+  ansible.builtin.getent:
+    database: passwd
+    key: jacques
 
 - name: Look up the render group for GPU access
   ansible.builtin.getent:
@@ -21,11 +14,22 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: jellyfin
-    group: jellyfin
+    owner: jacques
+    group: jacques
     mode: "0750"
   loop:
     - /srv/jellyfin
+    - /srv/jellyfin/config
+    - /srv/jellyfin/cache
+
+- name: Make jacques own the existing jellyfin data
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: jacques
+    group: jacques
+    recurse: true
+  loop:
     - /srv/jellyfin/config
     - /srv/jellyfin/cache
 
