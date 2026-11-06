@@ -25,6 +25,13 @@
     # Only mount the pool once all disks are mounted.
     storage_requires: "{{ storage_branches | map('regex_replace', '^', 'x-systemd.requires-mounts-for=') | join(',') }}"
 
+# Later roles use the mount facts, which were gathered before the disks were mounted.
+- name: Refresh mount facts
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - mounts
+
 - name: Create Docker service override directory
   ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d
