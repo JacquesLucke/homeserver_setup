@@ -2,6 +2,7 @@
   hosts: homeserver
   become: true
   roles:
+    - updates
     - storage
     - docker
     - tailscale
