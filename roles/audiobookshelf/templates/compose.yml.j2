@@ -5,7 +5,7 @@ services:
     volumes:
       - /srv/audiobookshelf/config:/config
       - /srv/audiobookshelf/metadata:/metadata
-      - /mnt/storage/Audiobooks:/audiobooks:ro
+      - /mnt/storage/media/Audiobooks:/audiobooks:ro
     ports:
       - 13378:80
     restart: unless-stopped

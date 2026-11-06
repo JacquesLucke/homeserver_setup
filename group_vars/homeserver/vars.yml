@@ -1,4 +1,4 @@
 storage_disks:
   - name: jacques-data-1
-    uuid: 14d156db-35eb-4ee8-a475-06eea9c7571a
+    uuid: 9a32233e-9e0a-4f31-b98b-89769a35f29d
     fstype: ext4
