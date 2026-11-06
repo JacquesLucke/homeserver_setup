@@ -1,5 +1,6 @@
 services:
   beszel:
+    container_name: beszel
     image: henrygd/beszel:latest
     environment:
       APP_URL: http://{{ ansible_facts.hostname }}:8090
@@ -13,6 +14,7 @@ services:
 
   # Collects the server's stats and sends them to the hub over the socket.
   beszel-agent:
+    container_name: beszel-agent
     # Intel variant includes intel_gpu_top for GPU utilisation (i915 driver).
     image: henrygd/beszel-agent-intel:latest
     # Host network so it sees the server's real network traffic.
