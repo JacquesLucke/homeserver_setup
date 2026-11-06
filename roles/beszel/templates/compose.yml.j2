@@ -13,9 +13,15 @@ services:
 
   # Collects the server's stats and sends them to the hub over the socket.
   beszel-agent:
-    image: henrygd/beszel-agent:latest
+    # Intel variant includes intel_gpu_top for GPU utilisation (i915 driver).
+    image: henrygd/beszel-agent-intel:latest
     # Host network so it sees the server's real network traffic.
     network_mode: host
+    # intel_gpu_top reads the GPU's performance counters.
+    cap_add:
+      - CAP_PERFMON
+    devices:
+      - /dev/dri/card0:/dev/dri/card0
     environment:
       LISTEN: /beszel_socket/beszel.sock
       HUB_URL: http://localhost:8090
