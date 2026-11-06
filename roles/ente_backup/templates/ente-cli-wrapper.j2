@@ -1,0 +1,8 @@
+#!/bin/bash
+# Runs the Ente CLI with the backup's CLI home and vault key.
+# Use as: sudo -u ente ente-cli-wrapper <args>
+set -euo pipefail
+export ENTE_CLI_HOME={{ ente_home }}/cli
+ENTE_CLI_VAULT_KEY="$(cat {{ ente_home }}/vault-key)"
+export ENTE_CLI_VAULT_KEY
+exec {{ ente_cli_dir }}/ente "$@"

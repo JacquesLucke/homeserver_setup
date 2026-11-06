@@ -1,0 +1,5 @@
+ente_cli_version: "0.4.3"
+ente_cli_sha256: abc9c387ed01f657b1316ac6852073475b7bab0ea4878cd5200b8986ed539b63
+ente_cli_dir: "/opt/ente-cli/{{ ente_cli_version }}"
+ente_home: /var/lib/ente-backup
+ente_export_dir: /mnt/storage/ente/photos

@@ -1,0 +1,94 @@
+# Lets Ansible run tasks as the unprivileged ente user.
+- name: Install acl
+  ansible.builtin.apt:
+    name: acl
+    state: present
+    update_cache: true
+
+- name: Create ente group
+  ansible.builtin.group:
+    name: ente
+    system: true
+
+- name: Create ente user
+  ansible.builtin.user:
+    name: ente
+    group: ente
+    system: true
+    home: "{{ ente_home }}"
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Create ente home directory
+  ansible.builtin.file:
+    path: "{{ ente_home }}"
+    state: directory
+    owner: ente
+    group: ente
+    mode: "0700"
+
+- name: Create ente export directory
+  ansible.builtin.file:
+    path: "{{ ente_export_dir }}"
+    state: directory
+    owner: ente
+    group: ente
+    mode: "0755"
+
+- name: Create Ente CLI directory
+  ansible.builtin.file:
+    path: "{{ ente_cli_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download Ente CLI
+  ansible.builtin.get_url:
+    url: "https://github.com/ente/ente/releases/download/ente-cli-v{{ ente_cli_version }}/ente-cli-v{{ ente_cli_version }}-linux-amd64.tar.gz"
+    dest: "{{ ente_cli_dir }}/ente-cli.tar.gz"
+    checksum: "sha256:{{ ente_cli_sha256 }}"
+    mode: "0644"
+
+- name: Unpack Ente CLI
+  ansible.builtin.unarchive:
+    src: "{{ ente_cli_dir }}/ente-cli.tar.gz"
+    dest: "{{ ente_cli_dir }}"
+    remote_src: true
+    creates: "{{ ente_cli_dir }}/ente"
+
+- name: Install Ente CLI wrapper
+  ansible.builtin.template:
+    src: ente-cli-wrapper.j2
+    dest: /usr/local/bin/ente-cli-wrapper
+    owner: root
+    group: root
+    mode: "0755"
+
+# The Ente CLI keeps its login in a vault. The server has no keyring, so the
+# vault key lives in a file. Losing it only means logging in again.
+- name: Generate Ente CLI vault key
+  ansible.builtin.shell:
+    cmd: "umask 077 && set -C && {{ ente_cli_dir }}/ente vault key generate > {{ ente_home }}/vault-key"
+    creates: "{{ ente_home }}/vault-key"
+  become_user: ente
+  no_log: true
+
+- name: Install ente backup systemd units
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - ente-backup.service
+    - ente-backup.timer
+  notify: Reload systemd
+
+- name: Flush handlers so systemd knows the new units
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable ente backup timer
+  ansible.builtin.systemd_service:
+    name: ente-backup.timer
+    state: started
+    enabled: true
