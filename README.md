@@ -54,6 +54,7 @@ Data stored in the vault:
 * `vault_copyparty_media_accounts`: List of copyparty accounts with access to the media folder, each with a `name` and a `password_hash`. See below for how to create the hash.
 * `vault_smtp_host`, `vault_smtp_user`, `vault_smtp_password`: SMTP server (with implicit TLS on port 465) and login used to send notification emails.
 * `vault_notify_email`: The address that notification emails are sent to.
+* `vault_healthchecks_ping_url`: Secret healthchecks.io URL that the server pings every 5 minutes. healthchecks.io sends an email when the pings stop.
 * `vault_beszel_agent_key`, `vault_beszel_agent_token`: Used to connect the Beszel agent to the hub. This has to be retrieved from the Beszel hub once it is running.
 
 ```sh

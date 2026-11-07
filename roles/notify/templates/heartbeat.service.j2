@@ -1,0 +1,8 @@
+[Unit]
+Description=Ping healthchecks.io to show that the server is up
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl --fail --silent --show-error --max-time 10 --retry 3 --output /dev/null {{ vault_healthchecks_ping_url }}
