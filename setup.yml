@@ -6,6 +6,7 @@
     - ssh
     - recovery
     - storage
+    - snapraid
     - docker
     - tailscale
     - jellyfin

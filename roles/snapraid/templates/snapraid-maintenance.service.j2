@@ -1,0 +1,10 @@
+[Unit]
+Description=Sync and scrub the SnapRAID parity
+# Require all data and parity disks to be available.
+RequiresMountsFor={{ (storage_disks + parity_disks) | map(attribute='name') | map('regex_replace', '^', '/mnt/') | join(' ') }}
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/snapraid-maintenance
+Nice=19
+IOSchedulingClass=idle

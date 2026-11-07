@@ -20,6 +20,11 @@ sudo tailscale up
 
 # Log-in to ente to enable backups.
 sudo -u ente ente-cli-wrapper account login --account personal --app photos
+
+# Create the initial SnapRAID parity in the background. Takes a few hours,
+# later syncs run nightly.
+sudo systemctl start --no-block snapraid-maintenance.service
+journalctl -fu snapraid-maintenance.service
 ```
 
 ## Services
@@ -31,6 +36,7 @@ sudo -u ente ente-cli-wrapper account login --account personal --app photos
 | Beszel         | 8090   |
 | Samba          | -      |
 | Ente Backup    | -      |
+| SnapRAID       | -      |
 
 ## Private Data
 
