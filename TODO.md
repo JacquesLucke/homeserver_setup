@@ -10,4 +10,3 @@
 * [ ] Remove one-off migrations like recursive `chown` if possible.
 * [ ] Every apt task has update_cache: true. Use cache_valid_time: 3600, or refresh once at the start, to make runs faster.
 * [ ] Give ente and audiobookshelf users specific UIDs/GIDs.
-* [ ] Fix ansible lint failures.

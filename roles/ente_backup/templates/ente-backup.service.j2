@@ -2,10 +2,10 @@
 Description=Export Ente Photos to the storage pool
 Wants=network-online.target
 After=network-online.target
-RequiresMountsFor={{ ente_export_dir }}
+RequiresMountsFor={{ ente_backup_export_dir }}
 
 [Service]
 Type=oneshot
 User=ente
 Group=ente
-ExecStart=/usr/local/bin/ente-cli-wrapper photos export {{ ente_export_dir }} --account personal --exclude-hidden --no-input
+ExecStart=/usr/local/bin/ente-cli-wrapper photos export {{ ente_backup_export_dir }} --account personal --exclude-hidden --no-input
