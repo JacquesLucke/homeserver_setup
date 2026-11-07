@@ -11,6 +11,7 @@ services:
       - /srv/beszel/socket:/beszel_socket
     restart: unless-stopped
 {% if vault_beszel_agent_key is defined %}
+{% set smart_disks = storage_disks + parity_disks + [system_disk] %}
 
   # Collects the server's stats and sends them to the hub over the socket.
   beszel-agent:
@@ -22,16 +23,24 @@ services:
     # intel_gpu_top reads the GPU's performance counters.
     cap_add:
       - CAP_PERFMON
+      # Reading S.M.A.R.T. data needs raw disk access.
+      - SYS_RAWIO
     # Docker's AppArmor profile doesn't allow talking to systemd over D-Bus.
     security_opt:
       - apparmor:unconfined
     devices:
       - /dev/dri/card0:/dev/dri/card0
+{% for disk in smart_disks %}
+      - /dev/disk/by-id/{{ disk.id }}:/dev/{{ disk.name }}
+{% endfor %}
     environment:
       LISTEN: /beszel_socket/beszel.sock
       HUB_URL: http://localhost:8090
       KEY: "{{ vault_beszel_agent_key }}"
       TOKEN: "{{ vault_beszel_agent_token }}"
+      # The disks have custom names in the container, so smartctl doesn't find
+      # them on its own.
+      SMART_DEVICES: "{{ smart_disks | map(attribute='name') | map('regex_replace', '^', '/dev/') | map('regex_replace', '$', ':sat') | join(',') }}"
     volumes:
       - /srv/beszel/agent:/var/lib/beszel-agent
       - /srv/beszel/socket:/beszel_socket
