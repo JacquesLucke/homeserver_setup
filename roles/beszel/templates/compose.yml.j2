@@ -33,7 +33,7 @@ services:
       - /srv/beszel/agent:/var/lib/beszel-agent
       - /srv/beszel/socket:/beszel_socket
       - /var/run/docker.sock:/var/run/docker.sock:ro
-{% for disk in storage_disks %}
+{% for disk in storage_disks + parity_disks %}
 {% set device = (ansible_facts.mounts | selectattr('mount', 'equalto', '/mnt/' ~ disk.name) | first).device | basename %}
       - /mnt/{{ disk.name }}/.beszel:/extra-filesystems/{{ device }}__{{ disk.name }}:ro
 {% endfor %}
