@@ -8,7 +8,8 @@ This requires an Ubuntu system with a user that is allowed to run sudo. Also see
 
 ```sh
 # Run on the machine controlling the server (not the server itself).
-uv run ansible-playbook setup.yml
+
+uv run ansible-playbook setup.yml --ask-vault-pass
 ```
 
 ```sh
@@ -34,5 +35,6 @@ sudo -u ente ente-cli-wrapper account login --account personal --app photos
 ## Private Data
 
 Some private keys are stored in `group_vars/homeserver/vault.yml`:
+* `vault_become_password`: The sudo password of the user on the server.
 * `vault_samba_password`: My password to access the storage through samba.
 * `vault_beszel_agent_key`, `vault_beszel_agent_token`: Used to connect the Beszel agent to the hub. This has to be retrieved from the Beszel hub once it is running.
