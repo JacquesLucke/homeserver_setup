@@ -5,4 +5,3 @@
 * [ ] If Ente export fails, there is no info.
 * [ ] Extract common variables like `homeserver_user`, `storage_path`.
 * [ ] Have separate samba for full storage, media, and internal ssd.
-* [ ] Give the ente user a specific UID/GID.

@@ -8,11 +8,13 @@
 - name: Create ente group
   ansible.builtin.group:
     name: ente
+    gid: 980
     system: true
 
 - name: Create ente user
   ansible.builtin.user:
     name: ente
+    uid: 993
     group: ente
     system: true
     home: "{{ ente_backup_home }}"
