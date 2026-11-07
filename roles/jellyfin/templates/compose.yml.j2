@@ -7,6 +7,8 @@ services:
       - /srv/jellyfin/config:/config
       - /srv/jellyfin/cache:/cache
       - /mnt/storage/media:/media
+      # Jellyfin always writes its backups to this folder.
+      - /mnt/storage/app_backup/jellyfin:/config/data/backups
     # Intel Quick Sync hardware transcoding
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128

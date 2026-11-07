@@ -1,0 +1,8 @@
+[Unit]
+Description=Back up the Jellyfin data to the storage pool
+RequiresMountsFor=/mnt/storage/app_backup/jellyfin
+OnFailure=notify-failure@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/jellyfin-backup

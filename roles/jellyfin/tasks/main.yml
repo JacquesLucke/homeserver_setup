@@ -21,6 +21,7 @@
     - /srv/jellyfin
     - /srv/jellyfin/config
     - /srv/jellyfin/cache
+    - /mnt/storage/app_backup/jellyfin
 
 - name: Copy jellyfin compose file
   ansible.builtin.template:
@@ -34,3 +35,33 @@
   community.docker.docker_compose_v2:
     project_src: /srv/jellyfin
     state: present
+
+- name: Install jellyfin backup script
+  ansible.builtin.template:
+    src: jellyfin-backup.j2
+    dest: /usr/local/bin/jellyfin-backup
+    owner: root
+    group: root
+    # Contains the API key.
+    mode: "0700"
+
+- name: Install jellyfin backup systemd units
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - jellyfin-backup.service
+    - jellyfin-backup.timer
+  notify: Reload systemd
+
+- name: Flush handlers so systemd knows the new units
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable jellyfin backup timer
+  ansible.builtin.systemd_service:
+    name: jellyfin-backup.timer
+    state: started
+    enabled: true

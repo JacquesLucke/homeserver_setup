@@ -1,0 +1,16 @@
+#!/bin/bash
+# Creates a Jellyfin backup through its API and removes old backups.
+set -euo pipefail
+
+backup_dir=/mnt/storage/app_backup/jellyfin
+keep=7
+
+# Trickplay images can be regenerated and take a lot of space.
+curl --fail --silent --show-error --max-time 1800 --output /dev/null \
+    --header 'Authorization: MediaBrowser Token="{{ vault_jellyfin_api_key }}"' \
+    --header 'Content-Type: application/json' \
+    --data '{"Database": true, "Metadata": true, "Subtitles": false, "Trickplay": false}' \
+    http://localhost:8096/Backup/Create
+
+# The file names contain the date, so the oldest backups come first.
+ls "$backup_dir"/jellyfin-backup-*.zip | head --lines -"$keep" | xargs --no-run-if-empty rm --

@@ -1,0 +1,8 @@
+[Unit]
+Description=Back up the Jellyfin data every night
+
+[Timer]
+OnCalendar=*-*-* 02:30
+
+[Install]
+WantedBy=timers.target
