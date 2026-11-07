@@ -22,17 +22,6 @@
     - /srv/jellyfin/config
     - /srv/jellyfin/cache
 
-- name: Make jacques own the existing jellyfin data
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: jacques
-    group: jacques
-    recurse: true
-  loop:
-    - /srv/jellyfin/config
-    - /srv/jellyfin/cache
-
 - name: Copy jellyfin compose file
   ansible.builtin.template:
     src: compose.yml.j2
