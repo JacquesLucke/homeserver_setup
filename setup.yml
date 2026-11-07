@@ -13,6 +13,7 @@
     - jellyfin
     - audiobookshelf
     - copyparty
+    - homeassistant
     - samba
     - beszel
     - ente_backup

@@ -1,0 +1,24 @@
+- name: Create homeassistant data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+  loop:
+    - /srv/homeassistant
+    - /srv/homeassistant/config
+    - /mnt/storage/app_backup/homeassistant
+
+- name: Copy homeassistant compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/homeassistant/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start homeassistant
+  community.docker.docker_compose_v2:
+    project_src: /srv/homeassistant
+    state: present

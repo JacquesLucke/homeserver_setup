@@ -1,0 +1,13 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:2026.11.0@sha256:c6c1ca9931036bf3a2c4cc088d8db25dfea3b33935a5ecc83c40349462e2f69e
+    # Host network so it can discover devices like the Shelly plugs and receive
+    # their status updates.
+    network_mode: host
+    volumes:
+      - /srv/homeassistant/config:/config
+      # Home Assistant always writes its backups to this folder.
+      - /mnt/storage/app_backup/homeassistant:/config/backups
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped

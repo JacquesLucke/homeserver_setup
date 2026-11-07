@@ -31,10 +31,11 @@ journalctl -fu snapraid-maintenance.service
 
 | Service        | Port   |
 | -------------- | ------ |
-| Jellyfin       | 8096   |
-| Audiobookshelf | 13378  |
 | Copyparty      | 3923   |
 | Beszel         | 8090   |
+| Jellyfin       | 8096   |
+| Home Assistant | 8123   |
+| Audiobookshelf | 13378  |
 
 ## Internal Features
 

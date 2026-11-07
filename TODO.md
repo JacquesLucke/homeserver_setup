@@ -1,3 +1,4 @@
 # TODO
 
-* [ ] Home Assistant, plug integration.
+* [ ] Seerr.
+* [ ] Ad blocking.
