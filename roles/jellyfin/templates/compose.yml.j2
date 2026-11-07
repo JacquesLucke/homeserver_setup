@@ -6,8 +6,7 @@ services:
     volumes:
       - /srv/jellyfin/config:/config
       - /srv/jellyfin/cache:/cache
-      - /mnt/storage/media/Movies:/media/Movies
-      - /mnt/storage/media/Shows:/media/Shows
+      - /mnt/storage/media:/media
     # Intel Quick Sync hardware transcoding
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128
