@@ -1,0 +1,13 @@
+#!/bin/bash
+# Mails the status and recent logs of the given failed systemd unit.
+set -euo pipefail
+
+unit="$1"
+
+{
+    echo "To: {{ vault_notify_email }}"
+    echo "Subject: [$(hostname)] $unit failed"
+    echo
+    # Exits non-zero for failed units, which is expected here.
+    systemctl status --full --no-pager --lines 50 "$unit" || true
+} | sendmail -t

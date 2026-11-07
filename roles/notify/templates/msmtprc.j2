@@ -1,0 +1,14 @@
+defaults
+auth on
+tls on
+syslog on
+
+account smtp
+host {{ vault_smtp_host }}
+port 465
+tls_starttls off
+from {{ vault_smtp_user }}
+user {{ vault_smtp_user }}
+password {{ vault_smtp_password }}
+
+account default : smtp

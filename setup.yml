@@ -5,6 +5,7 @@
     - updates
     - ssh
     - recovery
+    - notify
     - storage
     - snapraid
     - docker

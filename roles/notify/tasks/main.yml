@@ -1,0 +1,35 @@
+# msmtp-mta provides the sendmail command, sending through an SMTP server.
+- name: Install msmtp
+  ansible.builtin.apt:
+    name:
+      - msmtp
+      - msmtp-mta
+    state: present
+    update_cache: true
+
+- name: Configure msmtp
+  ansible.builtin.template:
+    src: msmtprc.j2
+    dest: /etc/msmtprc
+    owner: root
+    group: root
+    # Contains the SMTP password.
+    mode: "0600"
+
+- name: Install failure notification script
+  ansible.builtin.template:
+    src: notify-failure.j2
+    dest: /usr/local/bin/notify-failure
+    owner: root
+    group: root
+    mode: "0755"
+
+# Other units use it with OnFailure=notify-failure@%n.service.
+- name: Install failure notification service
+  ansible.builtin.copy:
+    src: notify-failure@.service
+    dest: /etc/systemd/system/notify-failure@.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd

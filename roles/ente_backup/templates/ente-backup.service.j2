@@ -3,6 +3,7 @@ Description=Export Ente Photos to the storage pool
 Wants=network-online.target
 After=network-online.target
 RequiresMountsFor={{ ente_backup_export_dir }}
+OnFailure=notify-failure@%n.service
 
 [Service]
 Type=oneshot
