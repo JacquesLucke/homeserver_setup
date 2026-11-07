@@ -1,0 +1,41 @@
+# Copyparty runs as jacques so uploads belong to the same user as the other
+# media files.
+- name: Look up the jacques user
+  ansible.builtin.getent:
+    database: passwd
+    key: jacques
+
+- name: Create copyparty data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: jacques
+    group: jacques
+    mode: "0750"
+  loop:
+    - /srv/copyparty
+    - /srv/copyparty/config
+    - /srv/copyparty/hist
+
+# Contains the passwords, so only jacques (the container user) can read it.
+- name: Copy copyparty config
+  ansible.builtin.template:
+    src: copyparty.conf.j2
+    dest: /srv/copyparty/config/copyparty.conf
+    owner: jacques
+    group: jacques
+    mode: "0600"
+  notify: Restart copyparty
+
+- name: Copy copyparty compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/copyparty/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start copyparty
+  community.docker.docker_compose_v2:
+    project_src: /srv/copyparty
+    state: present

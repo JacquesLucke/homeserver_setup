@@ -33,6 +33,7 @@ journalctl -fu snapraid-maintenance.service
 | -------------- | ------ |
 | Jellyfin       | 8096   |
 | Audiobookshelf | 13378  |
+| Copyparty      | 3923   |
 | Beszel         | 8090   |
 | Samba          | -      |
 | Ente Backup    | -      |
@@ -40,7 +41,21 @@ journalctl -fu snapraid-maintenance.service
 
 ## Private Data
 
-Some private keys are stored in `group_vars/homeserver/vault.yml`:
+Some private data is stored in `group_vars/homeserver/vault.yml`.
+
+```sh
+# Edit the vault data (requires the right vault password).
+uv run ansible-vault edit group_vars/homeserver/vault.yml
+```
+
+Data stored in the vault:
 * `vault_become_password`: The sudo password of the user on the server.
 * `vault_samba_password`: My password to access the storage through samba.
+* `vault_copyparty_media_accounts`: List of copyparty accounts with access to the media folder, each with a `name` and a `password_hash`. See below for how to create the hash.
 * `vault_beszel_agent_key`, `vault_beszel_agent_token`: Used to connect the Beszel agent to the hub. This has to be retrieved from the Beszel hub once it is running.
+
+```sh
+# Prints the hash (starting with "+") for the "name:password" typed on stdin.
+# Take the <salt> from roles/copyparty/templates/copyparty.conf.j2.
+docker run --rm -i copyparty/ac:1.20.26 --usernames --ah-alg argon2 --ah-salt <salt> --ah-gen -
+```

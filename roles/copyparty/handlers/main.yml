@@ -1,0 +1,5 @@
+# Copyparty only reads its config on startup.
+- name: Restart copyparty
+  community.docker.docker_compose_v2:
+    project_src: /srv/copyparty
+    state: restarted

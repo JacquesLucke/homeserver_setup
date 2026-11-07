@@ -1,0 +1,21 @@
+[global]
+  # This is where copyparty stores extra data like thumbnails.
+  hist: /hist
+
+  # Require user name and password to log in, not just the password.
+  usernames
+
+  # Store hashed passwords with a fixed salt when the machine is refreshed.
+  ah-alg: argon2
+  ah-salt: ghPDJ4PBRfKdG3bA2AgQ3z8vb
+
+# The account names are in the vault, so they aren't public.
+[accounts]
+{% for account in vault_copyparty_media_accounts %}
+  {{ account.name }}: {{ account.password_hash }}
+{% endfor %}
+
+[/]
+  /media
+  accs:
+    rwmd: {{ vault_copyparty_media_accounts | map(attribute='name') | join(', ') }}

@@ -1,0 +1,14 @@
+services:
+  copyparty:
+    container_name: copyparty
+    image: copyparty/ac:1.20.26@sha256:b2054d65e05daa8982ca17c26b12b74315c0ce586a03ff9018a59c80731b9e19
+    user: "{{ ansible_facts.getent_passwd.jacques[1] }}:{{ ansible_facts.getent_passwd.jacques[2] }}"
+    volumes:
+      - /srv/copyparty/config:/cfg:ro
+      - /srv/copyparty/hist:/hist
+      - /mnt/storage/media:/media
+    ports:
+      - 3923:3923
+    # Lets the thumbnailer finish after the shutdown signal.
+    stop_grace_period: 15s
+    restart: unless-stopped
