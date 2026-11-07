@@ -1,23 +1,16 @@
-- name: Create audiobookshelf group
-  ansible.builtin.group:
-    name: audiobookshelf
-    system: true
-
-- name: Create audiobookshelf user
-  ansible.builtin.user:
-    name: audiobookshelf
-    group: audiobookshelf
-    system: true
-    create_home: false
-    shell: /usr/sbin/nologin
-  register: audiobookshelf_user
+# Audiobookshelf runs as jacques so it can write to the audiobooks folder,
+# which is owned by jacques.
+- name: Look up the jacques user
+  ansible.builtin.getent:
+    database: passwd
+    key: jacques
 
 - name: Create audiobookshelf data directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: audiobookshelf
-    group: audiobookshelf
+    owner: jacques
+    group: jacques
     mode: "0750"
   loop:
     - /srv/audiobookshelf

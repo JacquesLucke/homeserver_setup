@@ -2,11 +2,11 @@ services:
   audiobookshelf:
     container_name: audiobookshelf
     image: ghcr.io/advplyr/audiobookshelf:2.37.2@sha256:b897c33f05972fb1bf484f7487bc878fa91ec8691335c1db6e2929c3a7658efa
-    user: "{{ audiobookshelf_user.uid }}:{{ audiobookshelf_user.group }}"
+    user: "{{ ansible_facts.getent_passwd.jacques[1] }}:{{ ansible_facts.getent_passwd.jacques[2] }}"
     volumes:
       - /srv/audiobookshelf/config:/config
       - /srv/audiobookshelf/metadata:/metadata
-      - /mnt/storage/media/Audiobooks:/audiobooks:ro
+      - /mnt/storage/media/Audiobooks:/audiobooks
     ports:
       - 13378:80
     restart: unless-stopped
