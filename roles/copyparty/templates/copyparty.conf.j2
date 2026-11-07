@@ -9,6 +9,13 @@
   ah-alg: argon2
   ah-salt: ghPDJ4PBRfKdG3bA2AgQ3z8vb
 
+  # Enable a data-base to remember uploads.
+  e2d
+  # Unposting can only be done for the given duration in seconds.
+  unpost: 604800 # = 1 week
+  # Ownership is checked by account, not IP address.
+  unp-who: 3
+
 # The account names are in the vault, so they aren't public.
 [accounts]
 {% for account in vault_copyparty_media_accounts %}
@@ -18,4 +25,4 @@
 [/]
   /media
   accs:
-    rwmd: {{ vault_copyparty_media_accounts | map(attribute='name') | join(', ') }}
+    rw: {{ vault_copyparty_media_accounts | map(attribute='name') | join(', ') }}
