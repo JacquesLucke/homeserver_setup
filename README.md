@@ -35,9 +35,10 @@ journalctl -fu snapraid-maintenance.service
 | Audiobookshelf | 13378  |
 | Copyparty      | 3923   |
 | Beszel         | 8090   |
-| Samba          | -      |
-| Ente Backup    | -      |
-| SnapRAID       | -      |
+
+## Internal Features
+
+* Samba, Ente Backup, SnapRAID, mergefs, health checks, email notifications, tailscale.
 
 ## Private Data
 
