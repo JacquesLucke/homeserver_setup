@@ -3,6 +3,7 @@
   become: true
   roles:
     - updates
+    - ssh
     - storage
     - docker
     - tailscale
