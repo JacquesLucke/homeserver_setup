@@ -4,12 +4,14 @@
     state: present
     update_cache: true
 
+# No nofail: if a disk is missing, boot stops in emergency mode instead of
+# starting the services on an empty mountpoint. Recover through a KVM.
 - name: Mount data disks
   ansible.posix.mount:
     path: "/mnt/{{ item.name }}"
     src: "UUID={{ item.uuid }}"
     fstype: "{{ item.fstype }}"
-    opts: defaults,nofail
+    opts: defaults
     state: mounted
   loop: "{{ storage_disks }}"
 
@@ -27,7 +29,7 @@
     path: /mnt/storage
     src: "{{ storage_branches | join(':') }}"
     fstype: fuse.mergerfs
-    opts: "cache.files=off,category.create=mspmfs,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,nofail,{{ storage_requires }}"
+    opts: "cache.files=off,category.create=mspmfs,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,{{ storage_requires }}"
     state: mounted
   vars:
     storage_branches: "{{ storage_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | list }}"
@@ -40,18 +42,3 @@
     gather_subset:
       - "!all"
       - mounts
-
-- name: Create Docker service override directory
-  ansible.builtin.file:
-    path: /etc/systemd/system/docker.service.d
-    state: directory
-    mode: "0755"
-
-- name: Make Docker wait for the storage pool on boot
-  ansible.builtin.copy:
-    content: |
-      [Unit]
-      After=mnt-storage.mount
-    dest: /etc/systemd/system/docker.service.d/wait-for-storage.conf
-    mode: "0644"
-  notify: Reload systemd

@@ -1,0 +1,32 @@
+# Makes it possible to fix a server that doesn't boot, e.g. because a data disk
+# is missing, through a KVM.
+
+- name: Create emergency and rescue service override directories
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ item }}.service.d"
+    state: directory
+    mode: "0755"
+  loop:
+    - emergency
+    - rescue
+
+- name: Allow a root shell in emergency and rescue mode
+  ansible.builtin.copy:
+    content: |
+      [Service]
+      Environment=SYSTEMD_SULOGIN_FORCE=1
+    dest: "/etc/systemd/system/{{ item }}.service.d/root-shell.conf"
+    mode: "0644"
+  loop:
+    - emergency
+    - rescue
+  notify: Reload systemd
+
+- name: Show the boot menu
+  ansible.builtin.copy:
+    content: |
+      GRUB_TIMEOUT_STYLE=menu
+      GRUB_TIMEOUT=5
+    dest: /etc/default/grub.d/99-show-menu.cfg
+    mode: "0644"
+  notify: Update GRUB

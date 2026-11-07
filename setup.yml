@@ -4,6 +4,7 @@
   roles:
     - updates
     - ssh
+    - recovery
     - storage
     - docker
     - tailscale
