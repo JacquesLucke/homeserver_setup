@@ -22,6 +22,9 @@ services:
     # intel_gpu_top reads the GPU's performance counters.
     cap_add:
       - CAP_PERFMON
+    # Docker's AppArmor profile doesn't allow talking to systemd over D-Bus.
+    security_opt:
+      - apparmor:unconfined
     devices:
       - /dev/dri/card0:/dev/dri/card0
     environment:
@@ -33,6 +36,8 @@ services:
       - /srv/beszel/agent:/var/lib/beszel-agent
       - /srv/beszel/socket:/beszel_socket
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Lets the agent read the state of the systemd services.
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
 {% for disk in storage_disks + parity_disks %}
 {% set device = (ansible_facts.mounts | selectattr('mount', 'equalto', '/mnt/' ~ disk.name) | first).device | basename %}
       - /mnt/{{ disk.name }}/.beszel:/extra-filesystems/{{ device }}__{{ disk.name }}:ro
