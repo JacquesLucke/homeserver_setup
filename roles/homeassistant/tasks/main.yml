@@ -8,7 +8,14 @@
   loop:
     - /srv/homeassistant
     - /srv/homeassistant/config
-    - /mnt/storage/app_backup/homeassistant
+
+- name: Create homeassistant backup directory
+  ansible.builtin.file:
+    path: /mnt/storage/app_backup/homeassistant
+    state: directory
+    owner: jacques
+    group: jacques
+    mode: "0750"
 
 - name: Copy homeassistant compose file
   ansible.builtin.template:
