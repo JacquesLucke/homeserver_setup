@@ -1,0 +1,21 @@
+# Tools for inspecting and debugging the server over SSH.
+- name: Install command line tools
+  ansible.builtin.apt:
+    name:
+      - dnsutils
+      - ethtool
+      - htop
+      - iotop-c
+      - iperf3
+      - iw
+      - jq
+      - lsof
+      - mtr-tiny
+      - ncdu
+      - rsync
+      - smartmontools
+      - sysstat
+      - tmux
+      - tree
+    state: present
+    update_cache: true

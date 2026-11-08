@@ -3,6 +3,7 @@
   become: true
   roles:
     - updates
+    - tools
     - ssh
     - recovery
     - notify
