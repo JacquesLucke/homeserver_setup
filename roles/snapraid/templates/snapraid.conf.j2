@@ -1,0 +1,22 @@
+{% for disk in snapraid_parity_disks %}
+{{ 'parity' if loop.first else loop.index ~ '-parity' }} /mnt/{{ disk.name }}/snapraid.parity
+{% endfor %}
+
+# SnapRAID's index of all files and checksums. It needs one more copy than
+# there are parity disks.
+content /var/lib/snapraid/snapraid.content
+{% for disk in snapraid_parity_disks %}
+content /mnt/{{ disk.name }}/snapraid.content
+{% endfor %}
+
+{% for disk in snapraid_data_disks %}
+data {{ disk.name }} /mnt/{{ disk.name }}/
+{% endfor %}
+
+exclude /lost+found/
+exclude /.Trash-*/
+exclude /.beszel/
+exclude *.unrecoverable
+
+# Save the progress of long syncs every 500 GB.
+autosave 500

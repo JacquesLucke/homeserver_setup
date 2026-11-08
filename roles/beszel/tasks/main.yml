@@ -26,7 +26,7 @@
     owner: root
     group: root
     mode: "0755"
-  loop: "{{ storage_disks + parity_disks }}"
+  loop: "{{ mounted_disks }}"
 
 - name: Copy beszel compose file
   ansible.builtin.template:

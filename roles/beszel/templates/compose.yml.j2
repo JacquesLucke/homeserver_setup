@@ -11,7 +11,7 @@ services:
       - /srv/beszel/socket:/beszel_socket
     restart: unless-stopped
 {% if vault_beszel_agent_key is defined %}
-{% set smart_disks = storage_disks + parity_disks + [system_disk] %}
+{% set smart_disks = mounted_disks + [disk_system] %}
 
   # Collects the server's stats and sends them to the hub over the socket.
   beszel-agent:
@@ -31,7 +31,7 @@ services:
     devices:
       - /dev/dri/card0:/dev/dri/card0
 {% for disk in smart_disks %}
-      - /dev/disk/by-id/{{ disk.id }}:/dev/{{ disk.name }}
+      - /dev/disk/by-id/{{ disk.disk_id }}:/dev/{{ disk.name }}
 {% endfor %}
     environment:
       LISTEN: /beszel_socket/beszel.sock
@@ -47,7 +47,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # Lets the agent read the state of the systemd services.
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
-{% for disk in storage_disks + parity_disks %}
+{% for disk in mounted_disks %}
 {% set device = (ansible_facts.mounts | selectattr('mount', 'equalto', '/mnt/' ~ disk.name) | first).device | basename %}
       - /mnt/{{ disk.name }}/.beszel:/extra-filesystems/{{ device }}__{{ disk.name }}:ro
 {% endfor %}

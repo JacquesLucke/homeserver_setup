@@ -7,12 +7,12 @@
 - name: Mount parity disks
   ansible.posix.mount:
     path: "/mnt/{{ item.name }}"
-    src: "UUID={{ item.uuid }}"
-    fstype: "{{ item.fstype }}"
+    src: "UUID={{ item.fs_uuid }}"
+    fstype: "{{ item.fs_type }}"
     # nofail is fine because the SnapRAID service checks availability.
     opts: defaults,nofail
     state: mounted
-  loop: "{{ parity_disks }}"
+  loop: "{{ snapraid_parity_disks }}"
 
 - name: Create SnapRAID content directory
   ansible.builtin.file:
@@ -21,8 +21,8 @@
     mode: "0755"
 
 - name: Configure SnapRAID
-  ansible.builtin.copy:
-    src: snapraid.conf
+  ansible.builtin.template:
+    src: snapraid.conf.j2
     dest: /etc/snapraid.conf
     owner: root
     group: root

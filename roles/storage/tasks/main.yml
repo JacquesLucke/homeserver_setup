@@ -9,11 +9,11 @@
 - name: Mount data disks
   ansible.posix.mount:
     path: "/mnt/{{ item.name }}"
-    src: "UUID={{ item.uuid }}"
-    fstype: "{{ item.fstype }}"
+    src: "UUID={{ item.fs_uuid }}"
+    fstype: "{{ item.fs_type }}"
     opts: defaults
     state: mounted
-  loop: "{{ storage_disks }}"
+  loop: "{{ mergerfs_disks }}"
 
 - name: Make data disk roots accessible
   ansible.builtin.file:
@@ -22,7 +22,7 @@
     owner: jacques
     group: jacques
     mode: "0755"
-  loop: "{{ storage_disks }}"
+  loop: "{{ mergerfs_disks }}"
 
 - name: Mount mergerfs pool
   ansible.posix.mount:
@@ -32,6 +32,6 @@
     opts: "cache.files=off,category.create=mspmfs,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,{{ storage_requires }}"
     state: mounted
   vars:
-    storage_branches: "{{ storage_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | list }}"
+    storage_branches: "{{ mergerfs_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | list }}"
     # Only mount the pool once all disks are mounted.
     storage_requires: "{{ storage_branches | map('regex_replace', '^', 'x-systemd.requires-mounts-for=') | join(',') }}"
