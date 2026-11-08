@@ -4,7 +4,7 @@ Ansible setup for my homeserver.
 
 ## Preparation
 
-This requires an Ubuntu system with a user that is allowed to run sudo. Also see `inventory.ini` for the expected IP address and username.
+This requires an Ubuntu system with a user that is allowed to run sudo. Also see `inventory.ini` for connection info.
 
 ```sh
 # Run on the machine controlling the server (not the server itself).
@@ -53,6 +53,7 @@ uv run ansible-vault edit group_vars/homeserver/vault.yml
 Data stored in the vault:
 * `vault_become_password`: The sudo password of the user on the server.
 * `vault_samba_password`: My password to access the storage through samba.
+* `vault_wifi_ssid`, `vault_wifi_password`: WiFi that the server uses when ethernet doesn't work.
 * `vault_copyparty_media_accounts`: List of copyparty accounts with access to the media folder, each with a `name` and a `password_hash`. See below for how to create the hash.
 * `vault_jellyfin_api_key`: Jellyfin API key used to create backups.
 * `vault_smtp_host`, `vault_smtp_user`, `vault_smtp_password`: SMTP server (with implicit TLS on port 465) and login used to send notification emails.

@@ -1,0 +1,26 @@
+- name: Configure network
+  ansible.builtin.template:
+    src: netplan.yaml.j2
+    dest: /etc/netplan/50-homeserver.yaml
+    owner: root
+    group: root
+    # Contains the WiFi password.
+    mode: "0600"
+    # Checks whether netplan can use the new config file without errors.
+    # This makes it a bit more safe to apply the new config without losing network connectivity.
+    validate: >-
+      sh -c 'root=$(mktemp -d) && mkdir -p "$root/etc/netplan" &&
+      cp "$1" "$root/etc/netplan/config.yaml" && netplan generate --root-dir "$root";
+      status=$?; rm -r "$root"; exit $status' sh %s
+  notify: Apply network config
+
+# Written by the Ubuntu installer, replaced by the config above.
+- name: Remove installer network config
+  ansible.builtin.file:
+    path: /etc/netplan/00-installer-config.yaml
+    state: absent
+  notify: Apply network config
+
+# Apply new config now instead of after reboot.
+- name: Flush handlers to apply the network config
+  ansible.builtin.meta: flush_handlers
