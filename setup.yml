@@ -13,6 +13,7 @@
     - docker
     - tailscale
     - jellyfin
+    - seerr
     - audiobookshelf
     - copyparty
     - homeassistant

@@ -32,6 +32,7 @@ journalctl -fu snapraid-maintenance.service
 | Service        | Port   |
 | -------------- | ------ |
 | Copyparty      | 3923   |
+| Seerr          | 5055   |
 | Beszel         | 8090   |
 | Jellyfin       | 8096   |
 | Home Assistant | 8123   |
