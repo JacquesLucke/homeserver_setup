@@ -2,3 +2,4 @@
 
 * [ ] Seerr.
 * [ ] Ad blocking.
+* [ ] Dashboard.
