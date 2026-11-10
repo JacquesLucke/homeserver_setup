@@ -3,9 +3,9 @@ services:
     container_name: beszel
     image: henrygd/beszel:0.21.1@sha256:8514a69d9bbbcb74f371a3205561ee231fc0289739cea64e8131f341d695b770
     environment:
-      APP_URL: http://{{ ansible_facts.hostname }}:8090
+      APP_URL: http://{{ ansible_facts.hostname }}:{{ beszel_port }}
     ports:
-      - 8090:8090
+      - "{{ beszel_port }}:8090"
     volumes:
       - /srv/beszel/data:/beszel_data
       - /srv/beszel/socket:/beszel_socket
@@ -35,7 +35,7 @@ services:
 {% endfor %}
     environment:
       LISTEN: /beszel_socket/beszel.sock
-      HUB_URL: http://localhost:8090
+      HUB_URL: http://localhost:{{ beszel_port }}
       KEY: "{{ vault_beszel_agent_key }}"
       TOKEN: "{{ vault_beszel_agent_token }}"
       # The disks have custom names in the container, so smartctl doesn't find

@@ -31,6 +31,7 @@ journalctl -fu snapraid-maintenance.service
 
 | Service        | Port   |
 | -------------- | ------ |
+| Landing page   | 80     |
 | Copyparty      | 3923   |
 | Seerr          | 5055   |
 | Beszel         | 8090   |

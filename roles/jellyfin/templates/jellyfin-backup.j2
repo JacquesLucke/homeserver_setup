@@ -10,7 +10,7 @@ curl --fail --silent --show-error --max-time 1800 --output /dev/null \
     --header 'Authorization: MediaBrowser Token="{{ vault_jellyfin_api_key }}"' \
     --header 'Content-Type: application/json' \
     --data '{"Database": true, "Metadata": true, "Subtitles": false, "Trickplay": false}' \
-    http://localhost:8096/Backup/Create
+    http://localhost:{{ jellyfin_port }}/Backup/Create
 
 # The file names contain the date, so the oldest backups come first.
 ls "$backup_dir"/jellyfin-backup-*.zip | head --lines -"$keep" | xargs --no-run-if-empty rm --

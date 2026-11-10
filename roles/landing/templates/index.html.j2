@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Links to the services of the home server">
+    <title>Jacques' Home Server</title>
+    <style>
+        .unreachable {
+            color: gray;
+            text-decoration: line-through;
+        }
+    </style>
+  </head>
+  <body>
+    <h1>Jacques' Home Server</h1>
+    <ul>
+      {% for service in landing_services %}
+        <li><a data-port="{{ service.port }}" href="#">{{ service.name }}</a></li>
+      {% endfor %}
+    </ul>
+    <script>
+      // Set the links based on the URL that was used to load this page. This is necessary
+      // because the site is reachable via IP and various tailscale names.
+      for (const a of document.querySelectorAll("a[data-port]")) {
+        a.href = `http://${location.hostname}:${a.dataset.port}/`;
+      }
+      // Not everyone has access to all ports. Test access by trying to fetch the page and mark
+      // the link as unreachable if it fails.
+      addEventListener("load", () => {
+        for (const a of document.querySelectorAll("a[data-port]")) {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 1000);
+          fetch(a.href, { mode: "no-cors", signal: controller.signal })
+            .catch(() => a.classList.add("unreachable"))
+            .finally(() => clearTimeout(timer));
+        }
+      });
+    </script>
+  </body>
+</html>

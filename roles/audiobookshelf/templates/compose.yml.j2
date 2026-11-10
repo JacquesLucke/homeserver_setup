@@ -9,5 +9,5 @@ services:
       - /mnt/storage/media/Audiobooks:/audiobooks
       - /mnt/storage/app_backup/audiobookshelf:/backup
     ports:
-      - 13378:80
+      - "{{ audiobookshelf_port }}:80"
     restart: unless-stopped

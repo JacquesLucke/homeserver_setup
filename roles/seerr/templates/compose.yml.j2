@@ -10,5 +10,5 @@ services:
       - /srv/seerr/config:/app/config
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - 5055:5055
+      - "{{ seerr_port }}:5055"
     restart: unless-stopped

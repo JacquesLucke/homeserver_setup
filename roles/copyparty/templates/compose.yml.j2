@@ -8,7 +8,7 @@ services:
       - /srv/copyparty/hist:/hist
       - /mnt/storage/media:/media
     ports:
-      - 3923:3923
+      - "{{ copyparty_port }}:3923"
     # Lets the thumbnailer finish after the shutdown signal.
     stop_grace_period: 15s
     restart: unless-stopped

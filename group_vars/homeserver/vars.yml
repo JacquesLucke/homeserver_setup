@@ -27,3 +27,24 @@ snapraid_parity_disks: "{{ [disk_jacques_parity_1] }}"
 
 # All disks mounted under /mnt, without the mergerfs pool.
 mounted_disks: "{{ [disk_jacques_data_1, disk_jacques_parity_1] }}"
+
+landing_port: 80
+copyparty_port: 3923
+seerr_port: 5055
+beszel_port: 8090
+audiobookshelf_port: 13378
+
+# If changed, the port also needs to be updated in Seerr's config file.
+jellyfin_port: 8096
+
+# Home Assistant uses the host network, so this can't be remapped.
+homeassistant_port: 8123
+
+# Services linked from the landing page.
+landing_services:
+  - { name: Jellyfin, port: "{{ jellyfin_port }}" }
+  - { name: Seerr, port: "{{ seerr_port }}" }
+  - { name: Audiobookshelf, port: "{{ audiobookshelf_port }}" }
+  - { name: Copyparty, port: "{{ copyparty_port }}" }
+  - { name: Home Assistant, port: "{{ homeassistant_port }}" }
+  - { name: Beszel, port: "{{ beszel_port }}" }

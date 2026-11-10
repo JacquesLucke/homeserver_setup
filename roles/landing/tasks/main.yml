@@ -1,0 +1,31 @@
+- name: Create landing directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - /srv/landing
+    - /srv/landing/html
+
+- name: Copy landing compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/landing/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy landing page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /srv/landing/html/index.html
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start landing
+  community.docker.docker_compose_v2:
+    project_src: /srv/landing
+    state: present
