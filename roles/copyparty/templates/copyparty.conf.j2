@@ -25,4 +25,5 @@
 [/]
   /media
   accs:
-    rw: {{ vault_copyparty_media_accounts | map(attribute='name') | join(', ') }}
+    # "A" means all permissions.
+    A: {{ vault_copyparty_media_accounts | map(attribute='name') | join(', ') }}
