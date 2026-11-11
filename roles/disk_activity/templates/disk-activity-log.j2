@@ -3,11 +3,14 @@
 # Used to find out what keeps the drives from spinning down.
 
 while true; do
-    for mount in /mnt/storage {{ mounted_disks | map(attribute='mount') | join(' ') }}; do
-        (cd "$mount" && fatrace --current-mount --seconds 300 2>/dev/null) &
-    done |
-        # Only keep the process name from lines like "jellyfin(1234): RO /mnt/...".
-        sed -E 's/\([0-9]+\): .*$//' |
-        grep --invert-match --line-regexp mergerfs |
-        sort | uniq --count | sort --reverse --numeric-sort
+    summary=$(
+        for mount in /mnt/storage {{ mounted_disks | map(attribute='mount') | join(' ') }}; do
+            (cd "$mount" && fatrace --current-mount --seconds 300 2>/dev/null) &
+        done |
+            # Only keep the process name from lines like "jellyfin(1234): RO /mnt/...".
+            sed -E 's/\([0-9]+\): .*$//' |
+            grep --invert-match --line-regexp mergerfs |
+            sort | uniq --count | sort --reverse --numeric-sort
+    )
+    echo "${summary:-no access}"
 done
