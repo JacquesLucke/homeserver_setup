@@ -1,6 +1,6 @@
 [Unit]
 Description=Log which processes access the hard drives
-RequiresMountsFor=/mnt/storage {{ mounted_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | join(' ') }}
+RequiresMountsFor=/mnt/storage {{ mounted_disks | map(attribute='mount') | join(' ') }}
 
 [Service]
 ExecStart=/usr/local/bin/disk-activity-log

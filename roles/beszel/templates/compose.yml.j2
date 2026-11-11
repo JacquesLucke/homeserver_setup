@@ -48,8 +48,8 @@ services:
       # Lets the agent read the state of the systemd services.
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
 {% for disk in mounted_disks %}
-{% set device = (ansible_facts.mounts | selectattr('mount', 'equalto', '/mnt/' ~ disk.name) | first).device | basename %}
-      - /mnt/{{ disk.name }}/.beszel:/extra-filesystems/{{ device }}__{{ disk.name }}:ro
+{% set device = (ansible_facts.mounts | selectattr('mount', 'equalto', disk.mount) | first).device | basename %}
+      - {{ disk.mount }}/.beszel:/extra-filesystems/{{ device }}__{{ disk.name }}:ro
 {% endfor %}
     restart: unless-stopped
 {% endif %}

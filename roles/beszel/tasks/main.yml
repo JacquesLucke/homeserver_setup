@@ -21,7 +21,7 @@
 
 - name: Create dummy beszel folders on the data and parity disks to mount
   ansible.builtin.file:
-    path: "/mnt/{{ item.name }}/.beszel"
+    path: "{{ item.mount }}/.beszel"
     state: directory
     owner: root
     group: root

@@ -6,7 +6,7 @@
 
 - name: Mount parity disks
   ansible.posix.mount:
-    path: "/mnt/{{ item.name }}"
+    path: "{{ item.mount }}"
     src: "UUID={{ item.fs_uuid }}"
     fstype: "{{ item.fs_type }}"
     # nofail is fine because the SnapRAID service checks availability.

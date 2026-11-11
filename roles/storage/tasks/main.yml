@@ -8,7 +8,7 @@
 # starting the services on an empty mountpoint. Recover through a KVM.
 - name: Mount data disks
   ansible.posix.mount:
-    path: "/mnt/{{ item.name }}"
+    path: "{{ item.mount }}"
     src: "UUID={{ item.fs_uuid }}"
     fstype: "{{ item.fs_type }}"
     opts: defaults
@@ -17,7 +17,7 @@
 
 - name: Make data disk roots accessible
   ansible.builtin.file:
-    path: "/mnt/{{ item.name }}"
+    path: "{{ item.mount }}"
     state: directory
     owner: jacques
     group: jacques
@@ -32,6 +32,6 @@
     opts: "cache.files=off,category.create=mspmfs,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,{{ storage_requires }}"
     state: mounted
   vars:
-    storage_branches: "{{ mergerfs_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | list }}"
+    storage_branches: "{{ mergerfs_disks | map(attribute='mount') | list }}"
     # Only mount the pool once all disks are mounted.
     storage_requires: "{{ storage_branches | map('regex_replace', '^', 'x-systemd.requires-mounts-for=') | join(',') }}"

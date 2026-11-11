@@ -1,16 +1,16 @@
 {% for disk in snapraid_parity_disks %}
-{{ 'parity' if loop.first else loop.index ~ '-parity' }} /mnt/{{ disk.name }}/snapraid.parity
+{{ 'parity' if loop.first else loop.index ~ '-parity' }} {{ disk.mount }}/snapraid.parity
 {% endfor %}
 
 # SnapRAID's index of all files and checksums. It needs one more copy than
 # there are parity disks.
 content /var/lib/snapraid/snapraid.content
 {% for disk in snapraid_parity_disks %}
-content /mnt/{{ disk.name }}/snapraid.content
+content {{ disk.mount }}/snapraid.content
 {% endfor %}
 
 {% for disk in snapraid_data_disks %}
-data {{ disk.name }} /mnt/{{ disk.name }}/
+data {{ disk.name }} {{ disk.mount }}/
 {% endfor %}
 
 exclude /lost+found/
