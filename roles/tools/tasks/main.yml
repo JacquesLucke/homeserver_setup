@@ -17,5 +17,6 @@
       - sysstat
       - tmux
       - tree
+      - fatrace
     state: present
     update_cache: true
