@@ -1,10 +1,9 @@
 [Unit]
-Description=Export Ente Photos every hour
+Description=Export Ente Photos every night
 
 [Timer]
-OnBootSec=15min
-# Counted from the end of the previous run, so long exports never overlap.
-OnUnitInactiveSec=1h
+OnCalendar=*-*-* 03:03:00
+Persistent=true
 
 [Install]
 WantedBy=timers.target
