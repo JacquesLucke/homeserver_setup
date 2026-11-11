@@ -2,7 +2,7 @@
 Description=Sync and scrub the SnapRAID parity every night
 
 [Timer]
-OnCalendar=*-*-* 03:35
+OnCalendar=*-*-* {{ snapraid_sync_time }}
 # Catch up after the server was off at that time.
 Persistent=true
 

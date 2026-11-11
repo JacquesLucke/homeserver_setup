@@ -45,16 +45,22 @@
     # Contains the API key.
     mode: "0700"
 
-- name: Install jellyfin backup systemd units
+- name: Install jellyfin backup service
   ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "/etc/systemd/system/{{ item }}"
+    src: jellyfin-backup.service
+    dest: /etc/systemd/system/jellyfin-backup.service
     owner: root
     group: root
     mode: "0644"
-  loop:
-    - jellyfin-backup.service
-    - jellyfin-backup.timer
+  notify: Reload systemd
+
+- name: Install jellyfin backup timer
+  ansible.builtin.template:
+    src: jellyfin-backup.timer.j2
+    dest: /etc/systemd/system/jellyfin-backup.timer
+    owner: root
+    group: root
+    mode: "0644"
   notify: Reload systemd
 
 - name: Flush handlers so systemd knows the new units

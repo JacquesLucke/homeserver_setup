@@ -2,7 +2,7 @@
 Description=Back up the Jellyfin data every night
 
 [Timer]
-OnCalendar=*-*-* 03:20
+OnCalendar=*-*-* {{ jellyfin_backup_time }}
 
 [Install]
 WantedBy=timers.target

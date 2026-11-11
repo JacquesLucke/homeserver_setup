@@ -46,8 +46,8 @@
   notify: Reload systemd
 
 - name: Install SnapRAID maintenance timer
-  ansible.builtin.copy:
-    src: snapraid-maintenance.timer
+  ansible.builtin.template:
+    src: snapraid-maintenance.timer.j2
     dest: /etc/systemd/system/snapraid-maintenance.timer
     owner: root
     group: root
