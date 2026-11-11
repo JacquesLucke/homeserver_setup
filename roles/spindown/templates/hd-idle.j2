@@ -1,0 +1,3 @@
+# "-i 0" first disables spin-down for all other disks like the system SSD.
+# "-c ata" sends the same standby command as "hdparm -y".
+HD_IDLE_OPTS="-i 0 {% for disk in mounted_disks %} -a /dev/disk/by-id/{{ disk.disk_id }} -i {{ disk_spindown_seconds }} -c ata{% endfor %}"

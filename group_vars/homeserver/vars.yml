@@ -58,3 +58,6 @@ landing_services:
 ente_backup_time: 03:03:00
 jellyfin_backup_time: 03:20:00
 snapraid_sync_time: 03:35:00
+
+# Put hard drives into standby after this many seconds of inactivity.
+disk_spindown_seconds: 3600

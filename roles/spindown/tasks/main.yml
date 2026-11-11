@@ -1,0 +1,20 @@
+- name: Install hd-idle
+  ansible.builtin.apt:
+    name: hd-idle
+    state: present
+    update_cache: true
+
+- name: Configure hd-idle
+  ansible.builtin.template:
+    src: hd-idle.j2
+    dest: /etc/default/hd-idle
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart hd-idle
+
+- name: Enable hd-idle
+  ansible.builtin.systemd_service:
+    name: hd-idle.service
+    state: started
+    enabled: true
