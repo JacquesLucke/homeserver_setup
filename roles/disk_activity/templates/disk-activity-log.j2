@@ -1,0 +1,13 @@
+#!/bin/bash
+# Logs every 5 minutes which processes accessed the hard drives and how often.
+# Used to find out what keeps the drives from spinning down.
+
+while true; do
+    for mount in /mnt/storage {{ mounted_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | join(' ') }}; do
+        (cd "$mount" && fatrace --current-mount --seconds 300 2>/dev/null) &
+    done |
+        # Only keep the process name from lines like "jellyfin(1234): RO /mnt/...".
+        sed -E 's/\([0-9]+\): .*$//' |
+        grep --invert-match --line-regexp mergerfs |
+        sort | uniq --count | sort --reverse --numeric-sort
+done

@@ -1,0 +1,34 @@
+- name: Install fatrace
+  ansible.builtin.apt:
+    name: fatrace
+    state: present
+    update_cache: true
+
+- name: Install disk activity logger
+  ansible.builtin.template:
+    src: disk-activity-log.j2
+    dest: /usr/local/bin/disk-activity-log
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart disk activity logger
+
+- name: Install disk activity logger service
+  ansible.builtin.template:
+    src: disk-activity-log.service.j2
+    dest: /etc/systemd/system/disk-activity-log.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart disk activity logger
+
+- name: Flush handlers so systemd knows the new unit
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable disk activity logger
+  ansible.builtin.systemd_service:
+    name: disk-activity-log.service
+    state: started
+    enabled: true

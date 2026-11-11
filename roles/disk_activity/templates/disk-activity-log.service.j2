@@ -1,0 +1,12 @@
+[Unit]
+Description=Log which processes access the hard drives
+RequiresMountsFor=/mnt/storage {{ mounted_disks | map(attribute='name') | map('regex_replace', '^', '/mnt/') | join(' ') }}
+
+[Service]
+ExecStart=/usr/local/bin/disk-activity-log
+Restart=on-failure
+RestartSec=10
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
