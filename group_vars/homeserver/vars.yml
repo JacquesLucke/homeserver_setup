@@ -42,6 +42,9 @@ jellyfin_port: 8096
 # Home Assistant uses the host network, so this can't be remapped.
 homeassistant_port: 8123
 
+# Cockpit's default port, which is set by its systemd socket.
+cockpit_port: 9090
+
 # Services linked from the landing page.
 landing_services:
   - { name: Jellyfin, port: "{{ jellyfin_port }}" }
@@ -50,6 +53,7 @@ landing_services:
   - { name: Copyparty, port: "{{ copyparty_port }}" }
   - { name: Home Assistant, port: "{{ homeassistant_port }}" }
   - { name: Beszel, port: "{{ beszel_port }}" }
+  - { name: Cockpit, port: "{{ cockpit_port }}" }
 
 ente_backup_time: 03:03:00
 jellyfin_backup_time: 03:20:00

@@ -37,6 +37,7 @@ journalctl -fu snapraid-maintenance.service
 | Beszel         | 8090   |
 | Jellyfin       | 8096   |
 | Home Assistant | 8123   |
+| Cockpit        | 9090   |
 | Audiobookshelf | 13378  |
 
 ## Internal Features
