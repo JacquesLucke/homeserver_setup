@@ -4,13 +4,15 @@
 
 while true; do
     summary=$(
-        for mount in /mnt/storage {{ mounted_disks | map(attribute='mount') | join(' ') }}; do
-            (cd "$mount" && fatrace --current-mount --seconds 300 2>/dev/null) &
+        # The mergerfs pool can't be watched directly because fanotify doesn't support FUSE.
+        # Accesses through the pool therefore show up as "mergerfs" on the underlying disks.
+        for mount in {{ mounted_disks | map(attribute='mount') | join(' ') }}; do
+            (cd "$mount" && fatrace --current-mount --seconds 300) &
         done |
-            # Only keep the process name from lines like "jellyfin(1234): RO /mnt/...".
-            sed -E 's/\([0-9]+\): .*$//' |
-            grep --invert-match --line-regexp mergerfs |
-            sort | uniq --count | sort --reverse --numeric-sort
+            # Turn lines like "jellyfin(1234): RO /mnt/disk/movies/a.mkv" into "jellyfin /mnt/disk/movies".
+            # The directory hints at what is behind a mergerfs access.
+            sed -E -e 's/^(.*)\([0-9]+\): [^ ]+ (\/.*)\/[^/]*$/\1 \2/; t' -e 's/\([0-9]+\): .*$//' |
+            sort | uniq --count | sort --reverse --numeric-sort | head --lines 30
     )
     echo "${summary:-no access}"
 done
