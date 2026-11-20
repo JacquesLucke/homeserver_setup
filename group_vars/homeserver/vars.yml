@@ -34,6 +34,7 @@ landing_port: 80
 copyparty_port: 3923
 seerr_port: 5055
 beszel_port: 8090
+ledfx_port: 8888
 audiobookshelf_port: 13378
 
 # If changed, the port also needs to be updated in Seerr's config file.
@@ -52,6 +53,7 @@ landing_services:
   - { name: Audiobookshelf, port: "{{ audiobookshelf_port }}" }
   - { name: Copyparty, port: "{{ copyparty_port }}" }
   - { name: Home Assistant, port: "{{ homeassistant_port }}" }
+  - { name: LedFx, port: "{{ ledfx_port }}" }
   - { name: Beszel, port: "{{ beszel_port }}" }
   # Cockpit's pages can't be fetched from other origins, but its ping endpoint can.
   - { name: Cockpit, port: "{{ cockpit_port }}", check_path: ping }

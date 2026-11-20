@@ -35,6 +35,7 @@ journalctl -fu snapraid-maintenance.service
 | Copyparty      | 3923   |
 | Seerr          | 5055   |
 | Beszel         | 8090   |
+| LedFx          | 8888   |
 | Jellyfin       | 8096   |
 | Home Assistant | 8123   |
 | Cockpit        | 9090   |

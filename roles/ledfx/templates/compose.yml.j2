@@ -1,0 +1,15 @@
+services:
+  ledfx:
+    container_name: ledfx
+    image: ghcr.io/ledfx/ledfx:2.2.1@sha256:fda3622040f6fb207440575f232826f31ded4bc5900a3d650c3ce4f31235beeb
+    network_mode: host
+    command: ["--port", "{{ ledfx_port }}"]
+    devices:
+      # Give access to audio devices.
+      - /dev/snd:/dev/snd
+    volumes:
+      - /srv/ledfx/config:/home/ledfx/ledfx-config
+      # The container runs its own PulseAudio server, which puts its socket here.
+      - /srv/ledfx/pulse:/home/ledfx/.config/pulse
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
