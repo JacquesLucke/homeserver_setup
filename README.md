@@ -70,3 +70,16 @@ Data stored in the vault:
 # Take the <salt> from roles/copyparty/templates/copyparty.conf.j2.
 docker run --rm -i copyparty/ac:1.20.26 --usernames --ah-alg argon2 --ah-salt <salt> --ah-gen -
 ```
+
+
+## Update Steps
+
+1. Update Ubuntu packages and reboot if needed.
+    ```sh
+    sudo apt update
+    sudo apt full-upgrade
+    sudo apt autoremove
+    # Reboot if necessary.
+    [ -f /var/run/reboot-required ] && sudo reboot
+    ```
+2. Update container images and ente cli.
