@@ -18,6 +18,7 @@
     - copyparty
     - homeassistant
     - ledfx
+    - iperf3
     - samba
     - beszel
     - landing

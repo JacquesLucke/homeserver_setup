@@ -34,6 +34,7 @@ journalctl -fu snapraid-maintenance.service
 | Landing page   | 80     |
 | Copyparty      | 3923   |
 | Seerr          | 5055   |
+| iperf3         | 5201   |
 | Beszel         | 8090   |
 | LedFx          | 8888   |
 | Jellyfin       | 8096   |
