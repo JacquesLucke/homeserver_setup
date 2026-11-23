@@ -8,6 +8,7 @@
   loop:
     - /srv/homeassistant
     - /srv/homeassistant/config
+    - /srv/homeassistant/config/packages
 
 - name: Create homeassistant backup directory
   ansible.builtin.file:
@@ -24,6 +25,44 @@
     owner: root
     group: root
     mode: "0644"
+
+- name: Copy homeassistant configuration
+  ansible.builtin.template:
+    src: configuration.yaml.j2
+    dest: /srv/homeassistant/config/configuration.yaml
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  notify: Restart homeassistant
+
+# Creates files that are part of the initial configuration. Generally, homeassistant
+# would create those automatically but only if it didn't get a configuration.yaml
+# already. These files are referenced by the configuration.
+- name: Create homeassistant UI editor files
+  ansible.builtin.copy:
+    content: "{{ item.content }}"
+    dest: "/srv/homeassistant/config/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
+  loop:
+    - { name: automations.yaml, content: "[]" }
+    - { name: scenes.yaml, content: "" }
+    - { name: scripts.yaml, content: "" }
+  notify: Restart homeassistant
+
+- name: Copy homeassistant packages
+  ansible.builtin.template:
+    src: "packages/{{ item }}.j2"
+    dest: "/srv/homeassistant/config/packages/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - ledfx.yaml
+  notify: Restart homeassistant
 
 - name: Start homeassistant
   community.docker.docker_compose_v2:

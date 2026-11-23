@@ -1,27 +1,33 @@
 #!/usr/bin/python3
-# A small website to start and stop selected services.
+# A small website and API to start and stop selected services. Home Assistant uses
+# the API, the website is the fallback when Home Assistant doesn't work.
 # A polkit rule makes sure if has only limited access to the system.
+#
+#   GET  /api/ledfx          -> prints the status, e.g. "active", "inactive" or "activating"
+#   POST /api/ledfx "start"  -> starts the service and prints the new status
+#   POST /api/ledfx "stop"   -> stops the service and prints the new status
 
 import html
 import os
 import subprocess
-from collections import namedtuple
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # Set in the systemd service.
 PORT = int(os.environ["CONTROL_PANEL_PORT"])
 
-Action = namedtuple("Action", ["verb", "unit"])
-
-# Maps request paths to the systemctl command that is run for them.
-ACTIONS = {
-    "/ledfx/start": Action(verb="start", unit="ledfx.service"),
-    "/ledfx/stop": Action(verb="stop", unit="ledfx.service"),
+# Maps API paths to the units that can be controlled through them.
+UNITS = {
+    "/api/ledfx": "ledfx.service",
 }
+
+VERBS = {"start", "stop"}
+
+# Request bodies are just a verb, so anything longer is rejected.
+MAX_BODY_SIZE = 100
 
 
 def unit_status(unit):
-    # Prints e.g. "active", "inactive" or "activating". Reading the status needs no permissions.
+    # Reading the status needs no permissions.
     result = subprocess.run(
         ["systemctl", "is-active", unit], capture_output=True, text=True, timeout=10
     )
@@ -41,8 +47,17 @@ def render_page():
     <h1>Control Panel</h1>
     <h3>LedFx</h3>
     <p>Status: {html.escape(status)}</p>
-    <form method="post" action="/ledfx/start"><button>Start</button></form>
-    <form method="post" action="/ledfx/stop"><button>Stop</button></form>
+    <button onclick="control('/api/ledfx', 'start')">Start</button>
+    <button onclick="control('/api/ledfx', 'stop')">Stop</button>
+    <script>
+      async function control(path, verb) {{
+        const response = await fetch(path, {{ method: "POST", body: verb }});
+        if (!response.ok) {{
+          alert(`Failed to ${{verb}}: ${{response.status}}`);
+        }}
+        location.reload();
+      }}
+    </script>
   </body>
 </html>
 """.encode()
@@ -53,34 +68,44 @@ class Handler(BaseHTTPRequestHandler):
     timeout = 10
 
     def do_GET(self):
-        if self.path != "/":
+        if self.path == "/":
+            self.send_body(render_page(), "text/html")
+            return
+        unit = UNITS.get(self.path)
+        if unit is None:
             self.send_error(404)
             return
-        body = render_page()
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        self.send_body((unit_status(unit) + "\n").encode(), "text/plain")
 
     def do_POST(self):
-        action = ACTIONS.get(self.path)
-        if action is None:
+        unit = UNITS.get(self.path)
+        if unit is None:
             self.send_error(404)
             return
+        length = int(self.headers.get("Content-Length", 0))
+        if length > MAX_BODY_SIZE:
+            self.send_error(413)
+            return
+        verb = self.rfile.read(length).decode(errors="replace").strip()
+        if verb not in VERBS:
+            self.send_error(400)
+            return
         result = subprocess.run(
-            ["systemctl", "--no-ask-password", action.verb, action.unit],
+            ["systemctl", "--no-ask-password", verb, unit],
             stdin=subprocess.DEVNULL,
             timeout=60,
         )
         if result.returncode != 0:
             self.send_error(500)
             return
-        # Redirect so that reloading the page doesn't submit the form again.
-        self.send_response(303)
-        self.send_header("Location", "/")
-        self.send_header("Content-Length", "0")
+        self.send_body((unit_status(unit) + "\n").encode(), "text/plain")
+
+    def send_body(self, body, content_type):
+        self.send_response(200)
+        self.send_header("Content-Type", f"{content_type}; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
         self.end_headers()
+        self.wfile.write(body)
 
 
 ThreadingHTTPServer(("", PORT), Handler).serve_forever()

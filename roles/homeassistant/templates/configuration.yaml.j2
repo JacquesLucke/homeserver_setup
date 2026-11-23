@@ -1,0 +1,18 @@
+# Managed by Ansible, changes made on the server are overwritten.
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+homeassistant:
+  # Everything configured in YAML lives in packages, one file per topic.
+  packages: !include_dir_named packages
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# Written by the UI editors. Automations, scripts and scenes that should be
+# managed by Ansible go into packages instead.
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml

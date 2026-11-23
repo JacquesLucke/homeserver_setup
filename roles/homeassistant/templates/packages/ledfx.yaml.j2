@@ -1,0 +1,12 @@
+# Starts and stops the LedFx container through the control panel on the host.
+switch:
+  - platform: rest
+    name: LedFx
+    unique_id: ledfx_service
+    icon: mdi:led-strip-variant
+    resource: http://127.0.0.1:{{ control_panel_port }}/api/ledfx
+    body_on: start
+    body_off: stop
+    is_on_template: "{{ '{{' }} value | trim in ['active', 'activating', 'reloading'] {{ '}}' }}"
+    # Stopping waits for docker compose to shut down the container.
+    timeout: 60
