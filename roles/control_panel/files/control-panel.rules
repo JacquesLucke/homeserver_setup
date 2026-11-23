@@ -1,0 +1,9 @@
+// Only allow the control panel to start and stop the services it controls.
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        subject.user == "control-panel" &&
+        ["start", "stop"].indexOf(action.lookup("verb")) >= 0 &&
+        action.lookup("unit") == "ledfx.service") {
+        return polkit.Result.YES;
+    }
+});

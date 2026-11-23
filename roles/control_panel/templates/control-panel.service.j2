@@ -1,0 +1,26 @@
+[Unit]
+Description=Web page with buttons to control services
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/control-panel
+Environment=CONTROL_PANEL_PORT={{ control_panel_port }}
+Restart=on-failure
+RestartSec=10
+User=control-panel
+Group=control-panel
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryMax=100M
+
+[Install]
+WantedBy=multi-user.target

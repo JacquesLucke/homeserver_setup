@@ -1,0 +1,12 @@
+# Not enabled, it's started and stopped from the control panel.
+[Unit]
+Description=LedFx
+Requires=docker.service
+After=docker.service
+
+[Service]
+WorkingDirectory=/srv/ledfx
+ExecStart=/usr/bin/docker compose up
+ExecStop=/usr/bin/docker compose down
+Restart=on-failure
+RestartSec=10

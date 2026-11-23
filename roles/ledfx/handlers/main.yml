@@ -1,0 +1,9 @@
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+# Only restarts ledfx if it is running.
+- name: Restart ledfx
+  ansible.builtin.command:
+    cmd: systemctl try-restart ledfx.service
+  changed_when: true

@@ -17,8 +17,20 @@
     owner: root
     group: root
     mode: "0644"
+  notify: Restart ledfx
 
-- name: Start ledfx
-  community.docker.docker_compose_v2:
+# Pull image already so it doesn't need to be done on first start.
+- name: Pull ledfx image
+  community.docker.docker_compose_v2_pull:
     project_src: /srv/ledfx
-    state: present
+
+- name: Install ledfx service
+  ansible.builtin.template:
+    src: ledfx.service.j2
+    dest: /etc/systemd/system/ledfx.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart ledfx

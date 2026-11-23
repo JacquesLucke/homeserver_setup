@@ -1,0 +1,51 @@
+# Used to allow the control panel to start and stop services.
+- name: Install polkit
+  ansible.builtin.apt:
+    name: polkitd
+    state: present
+    update_cache: true
+
+- name: Create control panel user
+  ansible.builtin.user:
+    name: control-panel
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+- name: Install control panel script
+  ansible.builtin.copy:
+    src: control-panel.py
+    dest: /usr/local/bin/control-panel
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart control panel
+
+# Polkit picks up changed rules automatically.
+- name: Allow the control panel to start and stop services
+  ansible.builtin.copy:
+    src: control-panel.rules
+    dest: /etc/polkit-1/rules.d/50-control-panel.rules
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install control panel service
+  ansible.builtin.template:
+    src: control-panel.service.j2
+    dest: /etc/systemd/system/control-panel.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart control panel
+
+- name: Flush handlers so systemd knows the new unit
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable control panel
+  ansible.builtin.systemd_service:
+    name: control-panel.service
+    state: started
+    enabled: true
