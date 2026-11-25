@@ -4,11 +4,16 @@ services:
     image: ghcr.io/ledfx/ledfx:2.2.1@sha256:fda3622040f6fb207440575f232826f31ded4bc5900a3d650c3ce4f31235beeb
     network_mode: host
     command: ["--port", "{{ ledfx_port }}"]
+    environment:
+      PULSECLIENTMODE: "1"
+      PULSE_SERVER: unix:/run/pulse/native
+      PULSE_SOURCE: "@DEFAULT_MONITOR@"
     devices:
-      # Give access to audio devices.
+      # Also give direct access to audio devices.
       - /dev/snd:/dev/snd
     volumes:
       - /srv/ledfx/config:/home/ledfx/ledfx-config
-      # The container runs its own PulseAudio server, which puts its socket here.
-      - /srv/ledfx/pulse:/home/ledfx/.config/pulse
+      # PipeWire's PulseAudio socket. The container user has the same uid as
+      # the main user who runs PipeWire, so it is allowed to connect.
+      - /run/user/1000/pulse:/run/pulse
       - /etc/localtime:/etc/localtime:ro

@@ -1,0 +1,14 @@
+- name: Restart user services of jacques
+  ansible.builtin.systemd_service:
+    name: user@1000.service
+    state: restarted
+
+- name: Restart wireplumber
+  ansible.builtin.systemd_service:
+    name: wireplumber.service
+    state: restarted
+    scope: user
+  become: true
+  become_user: jacques
+  environment:
+    XDG_RUNTIME_DIR: /run/user/1000

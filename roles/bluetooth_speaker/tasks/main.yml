@@ -1,0 +1,74 @@
+# Requires the audio role, which sets up PipeWire to play the received audio.
+
+- name: Install bluetooth
+  ansible.builtin.apt:
+    name: bluez
+    state: present
+    update_cache: true
+
+- name: Configure bluetooth
+  community.general.ini_file:
+    path: /etc/bluetooth/main.conf
+    section: General
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    # Stay visible forever instead of only for a few minutes.
+    - { option: DiscoverableTimeout, value: "0" }
+    # Allow devices to pair again after they forgot the server.
+    - { option: JustWorksRepairing, value: always }
+  notify: Restart bluetooth
+
+- name: Copy WirePlumber bluetooth config
+  ansible.builtin.copy:
+    src: 50-bluetooth-speaker.conf
+    dest: /etc/wireplumber/wireplumber.conf.d/50-bluetooth-speaker.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart wireplumber
+
+- name: Create bluetooth speaker agent user
+  ansible.builtin.user:
+    name: bluetooth-speaker
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+- name: Install bluetooth speaker agent
+  ansible.builtin.copy:
+    src: bluetooth-speaker-agent.py
+    dest: /usr/local/bin/bluetooth-speaker-agent
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart bluetooth speaker agent
+
+- name: Install bluetooth speaker agent service
+  ansible.builtin.template:
+    src: bluetooth-speaker-agent.service.j2
+    dest: /etc/systemd/system/bluetooth-speaker-agent.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart bluetooth speaker agent
+
+- name: Flush handlers so systemd knows the new unit
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable bluetooth
+  ansible.builtin.systemd_service:
+    name: bluetooth.service
+    state: started
+    enabled: true
+
+- name: Enable bluetooth speaker agent
+  ansible.builtin.systemd_service:
+    name: bluetooth-speaker-agent.service
+    state: started
+    enabled: true

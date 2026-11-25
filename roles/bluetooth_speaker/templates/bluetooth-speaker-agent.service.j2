@@ -1,0 +1,25 @@
+[Unit]
+Description=Lets devices pair via bluetooth to use the server as speaker
+After=bluetooth.service
+Requires=bluetooth.service
+# The agent has to register again when bluetooth is restarted.
+PartOf=bluetooth.service
+
+[Service]
+ExecStart=/usr/local/bin/bluetooth-speaker-agent
+Environment="BLUETOOTH_SPEAKER_NAME={{ bluetooth_speaker_name }}"
+Restart=on-failure
+RestartSec=10
+User=bluetooth-speaker
+Group=bluetooth-speaker
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX
+MemoryMax=100M
+
+[Install]
+WantedBy=bluetooth.target

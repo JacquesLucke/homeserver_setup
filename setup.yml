@@ -18,6 +18,8 @@
     - copyparty
     - control_panel
     - homeassistant
+    - audio
+    - bluetooth_speaker
     - ledfx
     - iperf3
     - samba

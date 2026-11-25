@@ -1,0 +1,71 @@
+- name: Install PipeWire
+  ansible.builtin.apt:
+    name:
+      - pipewire
+      - pipewire-pulse
+      - wireplumber
+      # WirePlumber requires bluetooth support by default.
+      - libspa-0.2-bluetooth
+    state: present
+    update_cache: true
+
+# PipeWire runs as user service of jacques. There is no desktop login, so the user
+# services have to be started at boot instead.
+- name: Start the user services of jacques at boot
+  ansible.builtin.command:
+    cmd: loginctl enable-linger jacques
+    creates: /var/lib/systemd/linger/jacques
+
+# Without a desktop login, access to sound devices is not granted automatically.
+- name: Allow jacques to access sound devices
+  ansible.builtin.user:
+    name: jacques
+    groups: audio
+    append: true
+  notify: Restart user services of jacques
+
+- name: Create WirePlumber config directory
+  ansible.builtin.file:
+    path: /etc/wireplumber/wireplumber.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy WirePlumber output config
+  ansible.builtin.copy:
+    src: 50-audio-output.conf
+    dest: /etc/wireplumber/wireplumber.conf.d/50-audio-output.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart wireplumber
+
+# PipeWire is usually only started once something plays audio. Start it at boot, so
+# that WirePlumber runs and e.g. bluetooth devices can connect.
+- name: Start PipeWire together with user services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    scope: global
+  loop:
+    - pipewire.service
+    - wireplumber.service
+
+- name: Flush handlers so the user services use the new groups and config
+  ansible.builtin.meta: flush_handlers
+
+- name: Start PipeWire
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: started
+    scope: user
+    daemon_reload: true
+  loop:
+    - pipewire.service
+    - pipewire-pulse.service
+    - wireplumber.service
+  become: true
+  become_user: jacques
+  environment:
+    XDG_RUNTIME_DIR: /run/user/1000

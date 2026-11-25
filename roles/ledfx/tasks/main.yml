@@ -8,7 +8,6 @@
   loop:
     - /srv/ledfx
     - /srv/ledfx/config
-    - /srv/ledfx/pulse
 
 - name: Copy ledfx compose file
   ansible.builtin.template:

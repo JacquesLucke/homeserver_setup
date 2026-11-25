@@ -45,7 +45,7 @@ journalctl -fu snapraid-maintenance.service
 
 ## Internal Features
 
-* Samba, Ente Backup, SnapRAID, mergefs, health checks, email notifications, tailscale.
+* Samba, Ente Backup, SnapRAID, mergefs, health checks, email notifications, tailscale, bluetooth speaker.
 
 ## Private Data
 

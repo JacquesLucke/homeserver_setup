@@ -1,0 +1,24 @@
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+# Also restarts the agent, because it's part of the bluetooth service.
+- name: Restart bluetooth
+  ansible.builtin.systemd_service:
+    name: bluetooth.service
+    state: restarted
+
+- name: Restart bluetooth speaker agent
+  ansible.builtin.systemd_service:
+    name: bluetooth-speaker-agent.service
+    state: restarted
+
+- name: Restart wireplumber
+  ansible.builtin.systemd_service:
+    name: wireplumber.service
+    state: restarted
+    scope: user
+  become: true
+  become_user: jacques
+  environment:
+    XDG_RUNTIME_DIR: /run/user/1000

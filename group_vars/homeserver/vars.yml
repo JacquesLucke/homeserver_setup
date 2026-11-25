@@ -72,5 +72,8 @@ ente_backup_time: 03:03:00
 jellyfin_backup_time: 03:30:00
 snapraid_sync_time: 03:40:00
 
+# Name shown to people connecting via bluetooth.
+bluetooth_speaker_name: Teufel Living Room Speaker
+
 # Put hard drives into standby after this many seconds of inactivity.
 disk_spindown_seconds: 3600
