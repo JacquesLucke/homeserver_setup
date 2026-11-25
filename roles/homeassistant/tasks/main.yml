@@ -62,6 +62,7 @@
     mode: "0644"
   loop:
     - ledfx.yaml
+    - bluetooth_pairing.yaml
   notify: Restart homeassistant
 
 - name: Start homeassistant

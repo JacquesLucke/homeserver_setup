@@ -1,0 +1,24 @@
+# Pairing mode, in which new devices can find and pair with the server. Not
+# enabled, it's started from Home Assistant or the control panel and ends by itself
+# after a minute. The bluetooth speaker agent only accepts new devices meanwhile.
+[Unit]
+Description=Bluetooth pairing mode for new devices
+After=bluetooth.service bluetooth-speaker-agent.service
+Requires=bluetooth.service
+PartOf=bluetooth.service
+
+[Service]
+ExecStartPre=/usr/bin/busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Pairable b true
+ExecStartPre=/usr/bin/busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Discoverable b true
+ExecStart=/usr/bin/sleep 60
+ExecStopPost=/usr/bin/busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Discoverable b false
+ExecStopPost=/usr/bin/busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Pairable b false
+User=bluetooth-speaker
+Group=bluetooth-speaker
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX

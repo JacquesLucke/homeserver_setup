@@ -1,0 +1,12 @@
+# Turns on bluetooth pairing mode through the control panel on the host, so that a
+# new device can connect to the bluetooth speaker. It turns off by itself after a
+# minute.
+switch:
+  - platform: rest
+    name: Bluetooth Pairing
+    unique_id: bluetooth_pairing_service
+    icon: mdi:bluetooth-connect
+    resource: http://127.0.0.1:{{ control_panel_port }}/api/bluetooth-pairing
+    body_on: start
+    body_off: stop
+    is_on_template: "{{ '{{' }} value | trim in ['active', 'activating', 'reloading'] {{ '}}' }}"

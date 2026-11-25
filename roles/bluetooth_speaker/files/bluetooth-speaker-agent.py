@@ -1,7 +1,8 @@
 #!/usr/bin/python3
-# Makes the server visible via bluetooth and lets devices pair without confirmation,
-# so that it can be used like a bluetooth speaker. The server has no display or
-# keyboard, so everyone in range can pair with it.
+# Lets devices pair without confirmation, so that the server can be used like a
+# bluetooth speaker. The server has no display or keyboard, so new devices are only
+# accepted while pairing mode is on (see bluetooth-pairing.service), which makes the
+# adapter visible and pairable. Paired devices can always connect.
 
 import os
 
@@ -16,12 +17,24 @@ NAME = os.environ["BLUETOOTH_SPEAKER_NAME"]
 AGENT_PATH = "/homeserver/bluetooth_speaker_agent"
 
 
+class Rejected(dbus.DBusException):
+    _dbus_error_name = "org.bluez.Error.Rejected"
+
+
 def set_trusted(device):
     # Trusted devices can connect later on without asking the agent again.
     props = dbus.Interface(
         bus.get_object("org.bluez", device), "org.freedesktop.DBus.Properties"
     )
     props.Set("org.bluez.Device1", "Trusted", True)
+
+
+def accept_new_device(device):
+    if not adapter.Get("org.bluez.Adapter1", "Pairable"):
+        print(f"Rejecting {device}, pairing mode is off", flush=True)
+        raise Rejected("Pairing mode is off")
+    print(f"Accepting {device}", flush=True)
+    set_trusted(device)
 
 
 class Agent(dbus.service.Object):
@@ -33,17 +46,18 @@ class Agent(dbus.service.Object):
     # and output capabilities.
     @dbus.service.method("org.bluez.Agent1", in_signature="o", out_signature="")
     def RequestAuthorization(self, device):
-        print(f"Pairing with {device}", flush=True)
-        set_trusted(device)
+        accept_new_device(device)
 
     @dbus.service.method("org.bluez.Agent1", in_signature="ou", out_signature="")
     def RequestConfirmation(self, device, passkey):
-        print(f"Pairing with {device}", flush=True)
-        set_trusted(device)
+        accept_new_device(device)
 
+    # Called when an untrusted device connects. The kernel can accept "Just Works"
+    # pairing on its own without asking the agent, so this is where such devices
+    # are accepted or rejected.
     @dbus.service.method("org.bluez.Agent1", in_signature="os", out_signature="")
     def AuthorizeService(self, device, uuid):
-        print(f"Authorizing {uuid} for {device}", flush=True)
+        accept_new_device(device)
 
     @dbus.service.method("org.bluez.Agent1", in_signature="", out_signature="")
     def Cancel(self):
@@ -75,8 +89,9 @@ adapter = dbus.Interface(
 )
 adapter.Set("org.bluez.Adapter1", "Alias", NAME)
 adapter.Set("org.bluez.Adapter1", "Powered", True)
-adapter.Set("org.bluez.Adapter1", "Pairable", True)
-adapter.Set("org.bluez.Adapter1", "Discoverable", True)
+# Bluetooth may remember these from before, so they are turned off explicitly.
+adapter.Set("org.bluez.Adapter1", "Pairable", False)
+adapter.Set("org.bluez.Adapter1", "Discoverable", False)
 
 print("Waiting for devices", flush=True)
 GLib.MainLoop().run()

@@ -16,7 +16,7 @@
     group: root
     mode: "0644"
   loop:
-    # Stay visible forever instead of only for a few minutes.
+    # Stay visible until pairing mode ends, instead of only for 3 minutes.
     - { option: DiscoverableTimeout, value: "0" }
     # Allow devices to pair again after they forgot the server.
     - { option: JustWorksRepairing, value: always }
@@ -57,6 +57,15 @@
   notify:
     - Reload systemd
     - Restart bluetooth speaker agent
+
+- name: Install bluetooth pairing service
+  ansible.builtin.copy:
+    src: bluetooth-pairing.service
+    dest: /etc/systemd/system/bluetooth-pairing.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
 
 - name: Flush handlers so systemd knows the new unit
   ansible.builtin.meta: flush_handlers

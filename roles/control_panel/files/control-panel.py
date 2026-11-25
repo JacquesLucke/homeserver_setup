@@ -6,6 +6,8 @@
 #   GET  /api/ledfx          -> prints the status, e.g. "active", "inactive" or "activating"
 #   POST /api/ledfx "start"  -> starts the service and prints the new status
 #   POST /api/ledfx "stop"   -> stops the service and prints the new status
+#
+# The same works for /api/bluetooth-pairing.
 
 import html
 import os
@@ -18,6 +20,13 @@ PORT = int(os.environ["CONTROL_PANEL_PORT"])
 # Maps API paths to the units that can be controlled through them.
 UNITS = {
     "/api/ledfx": "ledfx.service",
+    "/api/bluetooth-pairing": "bluetooth-pairing.service",
+}
+
+# Titles of the API paths on the website.
+TITLES = {
+    "/api/ledfx": "LedFx",
+    "/api/bluetooth-pairing": "Bluetooth Pairing",
 }
 
 VERBS = {"start", "stop"}
@@ -34,8 +43,17 @@ def unit_status(unit):
     return result.stdout.strip()
 
 
+def render_section(path):
+    status = unit_status(UNITS[path])
+    return f"""
+    <h3>{html.escape(TITLES[path])}</h3>
+    <p>Status: {html.escape(status)}</p>
+    <button onclick="control('{path}', 'start')">Start</button>
+    <button onclick="control('{path}', 'stop')">Stop</button>"""
+
+
 def render_page():
-    status = unit_status("ledfx.service")
+    sections = "".join(render_section(path) for path in UNITS)
     return f"""<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -44,11 +62,7 @@ def render_page():
     <title>Control Panel</title>
   </head>
   <body>
-    <h1>Control Panel</h1>
-    <h3>LedFx</h3>
-    <p>Status: {html.escape(status)}</p>
-    <button onclick="control('/api/ledfx', 'start')">Start</button>
-    <button onclick="control('/api/ledfx', 'stop')">Stop</button>
+    <h1>Control Panel</h1>{sections}
     <script>
       async function control(path, verb) {{
         const response = await fetch(path, {{ method: "POST", body: verb }});
