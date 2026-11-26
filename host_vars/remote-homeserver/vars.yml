@@ -1,2 +1,11 @@
 # The Beszel hub runs on the homeserver and is reached over tailscale.
 beszel_hub_url: http://homeserver:8090
+
+landing_port: 80
+
+# Home Assistant uses the host network, so this can't be remapped.
+homeassistant_port: 8123
+
+# Services linked from the landing page.
+landing_services:
+  - { name: Home Assistant, port: "{{ homeassistant_port }}" }

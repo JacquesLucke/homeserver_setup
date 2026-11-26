@@ -1,0 +1,9 @@
+services:
+  landing:
+    container_name: landing
+    image: nginx:1.30.7-alpine@sha256:bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598
+    volumes:
+      - /srv/landing/html:/usr/share/nginx/html:ro
+    ports:
+      - "{{ landing_port }}:80"
+    restart: unless-stopped

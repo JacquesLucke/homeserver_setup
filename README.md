@@ -105,6 +105,7 @@ uv run ansible-playbook remote-homeserver/setup.yml --ask-vault-pass
 
 | Service        | Port   |
 | -------------- | ------ |
+| Landing page   | 80     |
 | Home Assistant | 8123   |
 
 ### Vault
