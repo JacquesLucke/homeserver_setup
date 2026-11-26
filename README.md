@@ -101,6 +101,12 @@ This requires a Raspberry Pi 5 with Raspberry Pi OS.
 uv run ansible-playbook remote-homeserver/setup.yml --ask-vault-pass
 ```
 
+### Services
+
+| Service        | Port   |
+| -------------- | ------ |
+| Home Assistant | 8123   |
+
 ### Vault
 
 Some private data is stored in `host_vars/remote-homeserver/vault.yml`.

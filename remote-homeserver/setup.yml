@@ -7,4 +7,5 @@
     - ssh
     - docker
     - tailscale
+    - homeassistant
     - beszel
