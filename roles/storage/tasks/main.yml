@@ -24,14 +24,20 @@
     mode: "0755"
   loop: "{{ mergerfs_disks }}"
 
-- name: Mount mergerfs pool
+- name: Configure mergerfs pool
   ansible.posix.mount:
     path: /mnt/storage
     src: "{{ storage_branches | join(':') }}"
     fstype: fuse.mergerfs
     opts: "cache.files=off,category.create=pfrd,func.getattr=newest,dropcacheonclose=false,allow_other,fsname=mergerfs,{{ storage_requires }}"
-    state: mounted
+    state: present
   vars:
     storage_branches: "{{ mergerfs_disks | map(attribute='mount') | list }}"
     # Only mount the pool once all disks are mounted.
     storage_requires: "{{ storage_branches | map('regex_replace', '^', 'x-systemd.requires-mounts-for=') | join(',') }}"
+
+- name: Mount mergerfs pool
+  ansible.builtin.systemd_service:
+    name: mnt-storage.mount
+    state: started
+    daemon_reload: true
