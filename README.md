@@ -52,11 +52,11 @@ journalctl -fu snapraid-maintenance.service
 
 ### Vault
 
-Some private data is stored in `group_vars/homeserver/vault.yml`.
+Some private data is stored in `host_vars/homeserver/vault.yml`.
 
 ```sh
 # Edit the vault data (requires the right vault password).
-uv run ansible-vault edit group_vars/homeserver/vault.yml
+uv run ansible-vault edit host_vars/homeserver/vault.yml
 ```
 
 Data stored in the vault:
