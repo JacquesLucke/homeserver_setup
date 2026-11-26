@@ -1,0 +1,8 @@
+- name: Set up remote homeserver
+  hosts: remote-homeserver
+  become: true
+  roles:
+    - updates
+    - tools
+    - ssh
+    - tailscale

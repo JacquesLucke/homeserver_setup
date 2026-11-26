@@ -1,0 +1,38 @@
+- name: Add Tailscale signing key
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/debian/{{ ansible_facts['distribution_release'] }}.noarmor.gpg"
+    dest: "{{ tailscale_keyring }}"
+    mode: "0644"
+
+- name: Add Tailscale repository
+  ansible.builtin.copy:
+    content: |
+      deb [signed-by={{ tailscale_keyring }}] https://pkgs.tailscale.com/stable/debian {{ ansible_facts['distribution_release'] }} main
+    dest: /etc/apt/sources.list.d/tailscale.list
+    mode: "0644"
+
+- name: Install Tailscale
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+    update_cache: true
+
+- name: Start Tailscale and enable it on boot
+  ansible.builtin.service:
+    name: tailscaled
+    state: started
+    enabled: true
+
+- name: Check Tailscale login state
+  ansible.builtin.command: tailscale status --json
+  register: tailscale_status
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Remind to log in to Tailscale
+  ansible.builtin.debug:
+    msg: "Tailscale is not logged in. Run `sudo tailscale up` on the server."
+  when: >-
+    tailscale_status.rc != 0
+    or (tailscale_status.stdout | from_json).BackendState != "Running"

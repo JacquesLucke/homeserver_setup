@@ -50,7 +50,7 @@ journalctl -fu snapraid-maintenance.service
 
 * Samba, Ente Backup, SnapRAID, mergefs, health checks, email notifications, tailscale, bluetooth speaker.
 
-### Private Data
+### Vault
 
 Some private data is stored in `group_vars/homeserver/vault.yml`.
 
@@ -60,7 +60,7 @@ uv run ansible-vault edit group_vars/homeserver/vault.yml
 ```
 
 Data stored in the vault:
-* `vault_become_password`: The sudo password of the user on the server.
+* ``: The sudo password of the user on the server.
 * `vault_samba_password`: My password to access the storage through samba.
 * `vault_wifi_ssid`, `vault_wifi_password`: WiFi that the server uses when ethernet doesn't work.
 * `vault_copyparty_media_accounts`: List of copyparty accounts with access to the media folder, each with a `name` and a `password_hash`. See below for how to create the hash.
@@ -89,3 +89,14 @@ docker run --rm -i copyparty/ac:1.20.26 --usernames --ah-alg argon2 --ah-salt <s
     [ -f /var/run/reboot-required ] && sudo reboot
     ```
 2. Update container images and ente cli.
+
+
+## Remote Homeserver
+
+This requires a Raspberry Pi 5 with Raspberry Pi OS.
+
+```sh
+# Run on the machine controlling the server (not the server itself).
+
+uv run ansible-playbook remote-homeserver/setup.yml --ask-vault-pass
+```
