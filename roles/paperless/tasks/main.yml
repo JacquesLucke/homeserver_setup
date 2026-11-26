@@ -1,0 +1,39 @@
+- name: Look up the jacques user
+  ansible.builtin.getent:
+    database: passwd
+    key: jacques
+
+- name: Create paperless data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: jacques
+    group: jacques
+    mode: "0750"
+  loop:
+    - /srv/paperless
+    - /srv/paperless/data
+    - /mnt/storage/paperless
+    - /mnt/storage/paperless/media
+    - /mnt/storage/paperless/export
+    - /mnt/storage/paperless/consume
+
+- name: Create paperless broker directory
+  ansible.builtin.file:
+    path: /srv/paperless/broker
+    state: directory
+    # No owner, because the valkey container changes it to its own user.
+    mode: "0750"
+
+- name: Copy paperless compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/paperless/compose.yml
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Start paperless
+  community.docker.docker_compose_v2:
+    project_src: /srv/paperless
+    state: present

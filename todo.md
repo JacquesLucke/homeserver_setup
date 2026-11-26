@@ -1,4 +1,3 @@
-* Paperless
 * Backup
 * Vaultwarden
 * Forgejo

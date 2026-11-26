@@ -15,6 +15,7 @@
     - jellyfin
     - seerr
     - audiobookshelf
+    - paperless
     - copyparty
     - control_panel
     - homeassistant

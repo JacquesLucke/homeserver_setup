@@ -1,0 +1,31 @@
+services:
+  paperless:
+    container_name: paperless
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.5.1@sha256:8508853b8a0f8394074260957d0be186c8c64f346973b24a7583de4580f306b9
+    depends_on:
+      - paperless-broker
+    volumes:
+      - /srv/paperless/data:/usr/src/paperless/data
+      - /mnt/storage/paperless/media:/usr/src/paperless/media
+      - /mnt/storage/paperless/export:/usr/src/paperless/export
+      - /mnt/storage/paperless/consume:/usr/src/paperless/consume
+    environment:
+      # The container starts as root and drops to this user.
+      USERMAP_UID: "{{ ansible_facts.getent_passwd.jacques[1] }}"
+      USERMAP_GID: "{{ ansible_facts.getent_passwd.jacques[2] }}"
+      PAPERLESS_REDIS: redis://paperless-broker:6379
+      PAPERLESS_DBENGINE: sqlite
+      PAPERLESS_SECRET_KEY: "{{ vault_paperless_secret_key }}"
+      PAPERLESS_TIME_ZONE: Europe/Berlin
+      # Both languages are included in the image.
+      PAPERLESS_OCR_LANGUAGE: deu+eng
+    ports:
+      - "{{ paperless_port }}:8000"
+    restart: unless-stopped
+
+  paperless-broker:
+    container_name: paperless-broker
+    image: valkey/valkey:9.2.0-alpine@sha256:c8e2d17498838af5d91e12eb7c11220b3434a7b7131a333e3af52ad5e0b80882
+    volumes:
+      - /srv/paperless/broker:/data
+    restart: unless-stopped
