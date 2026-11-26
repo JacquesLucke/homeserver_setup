@@ -100,3 +100,15 @@ This requires a Raspberry Pi 5 with Raspberry Pi OS.
 
 uv run ansible-playbook remote-homeserver/setup.yml --ask-vault-pass
 ```
+
+### Vault
+
+Some private data is stored in `host_vars/remote-homeserver/vault.yml`.
+
+```sh
+# Edit the vault data (requires the right vault password).
+uv run ansible-vault edit host_vars/remote-homeserver/vault.yml
+```
+
+Data stored in the vault:
+* `vault_beszel_agent_key`, `vault_beszel_agent_token`: Used to connect the Beszel agent to the hub on the homeserver. Get them by adding the system in the Beszel hub. The key is the same as the homeserver's, the token is per system.

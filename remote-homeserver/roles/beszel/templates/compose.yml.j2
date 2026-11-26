@@ -1,0 +1,27 @@
+services:
+  # Collects the server's stats and sends them to the hub on the homeserver.
+  beszel-agent:
+    container_name: beszel-agent
+    image: henrygd/beszel-agent:0.21.2@sha256:343254226ae57a5cc6f8c23c755b1464730aba2abc7043116a2e222711ec6e1a
+    # Host network so it sees the server's real network traffic.
+    network_mode: host
+    cap_add:
+      # Reading S.M.A.R.T. data needs raw disk access.
+      - SYS_RAWIO
+      # NVMe disks additionally need this for S.M.A.R.T. data.
+      - SYS_ADMIN
+    # Docker's AppArmor profile doesn't allow talking to systemd over D-Bus.
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/nvme0:/dev/nvme0
+    environment:
+      HUB_URL: "{{ beszel_hub_url }}"
+      KEY: "{{ vault_beszel_agent_key }}"
+      TOKEN: "{{ vault_beszel_agent_token }}"
+    volumes:
+      - /srv/beszel/agent:/var/lib/beszel-agent
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Lets the agent read the state of the systemd services.
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+    restart: unless-stopped

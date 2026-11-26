@@ -7,3 +7,4 @@
     - ssh
     - docker
     - tailscale
+    - beszel

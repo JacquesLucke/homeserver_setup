@@ -1,0 +1,35 @@
+# Only the agent runs here. It sends the stats to the hub on the homeserver.
+- name: Remind to add the system to the Beszel hub
+  ansible.builtin.debug:
+    msg: >-
+      The Beszel agent is not set up yet. Add the system in the Beszel hub and
+      store its key and token in the vault.
+  when: vault_beszel_agent_key is not defined
+
+- name: Set up the Beszel agent
+  when: vault_beszel_agent_key is defined
+  block:
+    - name: Create beszel agent directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0750"
+      loop:
+        - /srv/beszel
+        - /srv/beszel/agent
+
+    - name: Copy beszel compose file
+      ansible.builtin.template:
+        src: compose.yml.j2
+        dest: /srv/beszel/compose.yml
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Start beszel agent
+      community.docker.docker_compose_v2:
+        project_src: /srv/beszel
+        state: present
+        remove_orphans: true
