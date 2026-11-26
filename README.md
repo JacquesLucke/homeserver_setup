@@ -1,15 +1,17 @@
-# Homeserver Setup
+# Server Setup
 
-Ansible setup for my homeserver.
+Ansible setup for some servers.
 
-## Preparation
+## Homeserver
+
+### Preparation
 
 This requires an Ubuntu system with a user that is allowed to run sudo. Also see `inventory.ini` for connection info.
 
 ```sh
 # Run on the machine controlling the server (not the server itself).
 
-uv run ansible-playbook setup.yml --ask-vault-pass
+uv run ansible-playbook homeserver/setup.yml --ask-vault-pass
 ```
 
 ```sh
@@ -27,7 +29,7 @@ sudo systemctl start --no-block snapraid-maintenance.service
 journalctl -fu snapraid-maintenance.service
 ```
 
-## Services
+### Services
 
 | Service        | Port   |
 | -------------- | ------ |
@@ -44,11 +46,11 @@ journalctl -fu snapraid-maintenance.service
 | Cockpit        | 9090   |
 | Audiobookshelf | 13378  |
 
-## Internal Features
+### Internal Features
 
 * Samba, Ente Backup, SnapRAID, mergefs, health checks, email notifications, tailscale, bluetooth speaker.
 
-## Private Data
+### Private Data
 
 Some private data is stored in `group_vars/homeserver/vault.yml`.
 
@@ -76,7 +78,7 @@ docker run --rm -i copyparty/ac:1.20.26 --usernames --ah-alg argon2 --ah-salt <s
 ```
 
 
-## Update Steps
+### Update Steps
 
 1. Update Ubuntu packages and reboot if needed.
     ```sh
