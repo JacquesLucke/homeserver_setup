@@ -1,0 +1,8 @@
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Restart iperf3 server
+  ansible.builtin.systemd_service:
+    name: iperf3-server.service
+    state: restarted

@@ -1,0 +1,17 @@
+[Unit]
+Description=iperf3 server for network speed tests
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/iperf3 --server --port {{ iperf3_port }}
+Restart=on-failure
+RestartSec=10
+DynamicUser=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

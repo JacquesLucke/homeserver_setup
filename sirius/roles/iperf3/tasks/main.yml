@@ -1,0 +1,25 @@
+- name: Install iperf3
+  ansible.builtin.apt:
+    name: iperf3
+    state: present
+    update_cache: true
+
+- name: Install iperf3 server service
+  ansible.builtin.template:
+    src: iperf3-server.service.j2
+    dest: /etc/systemd/system/iperf3-server.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart iperf3 server
+
+- name: Flush handlers so systemd knows the new unit
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable iperf3 server
+  ansible.builtin.systemd_service:
+    name: iperf3-server.service
+    state: started
+    enabled: true

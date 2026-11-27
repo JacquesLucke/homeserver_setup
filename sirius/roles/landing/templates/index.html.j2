@@ -21,12 +21,16 @@
                href="#">{{ service.name }}</a></li>
       {% endfor %}
     </ul>
+    <h3>Speed Test</h3>
+    <code id="iperf3-command">iperf3 -c &lt;host&gt; -p {{ iperf3_port }}</code>
     <script>
       // Set the links based on the URL that was used to load this page. This is necessary
       // because the site is reachable via IP and various tailscale names.
       for (const a of document.querySelectorAll("a[data-port]")) {
         a.href = `http://${location.hostname}:${a.dataset.port}/`;
       }
+      document.getElementById("iperf3-command").textContent =
+        `iperf3 -c ${location.hostname} -p {{ iperf3_port }}`;
       // Not everyone has access to all ports. Test access by trying to fetch the page and mark
       // the link as unreachable if it fails.
       addEventListener("load", () => {

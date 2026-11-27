@@ -15,6 +15,8 @@ rest_server_port: 8000
 rest_server_accounts:
   - { name: polaris, password: "{{ vault_sirius_rest_server_polaris_login }}" }
 
+iperf3_port: 5201
+
 # Services linked from the landing page.
 landing_services:
   - { name: Home Assistant, port: "{{ homeassistant_port }}" }

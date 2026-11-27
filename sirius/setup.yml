@@ -20,5 +20,6 @@
     - tailscale
     - homeassistant
     - rest_server
+    - iperf3
     - beszel
     - landing
