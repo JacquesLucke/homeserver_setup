@@ -1,6 +1,12 @@
 - name: Set up homeserver
   hosts: homeserver
   become: true
+  pre_tasks:
+    - name: Validate vault data against vault_schema
+      ansible.utils.validate:
+        data: "{{ lookup('ansible.builtin.unvault', inventory_dir ~ '/host_vars/' ~ inventory_hostname ~ '/vault.yml') | from_yaml }}"
+        criteria: "{{ vault_schema }}"
+        engine: ansible.utils.jsonschema
   roles:
     - updates
     - tools

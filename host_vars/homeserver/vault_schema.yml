@@ -1,0 +1,80 @@
+# JSON Schema describing the data in vault.yml. The playbook validates the vault against it.
+vault_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  additionalProperties: false
+  required:
+    - vault_become_password
+    - vault_samba_password
+    - vault_wifi_ssid
+    - vault_wifi_password
+    - vault_copyparty_media_accounts
+    - vault_jellyfin_api_key
+    - vault_smtp_host
+    - vault_smtp_user
+    - vault_smtp_password
+    - vault_notify_email
+    - vault_healthchecks_ping_url
+    - vault_paperless_secret_key
+  dependentRequired:
+    vault_beszel_agent_key: [vault_beszel_agent_token]
+    vault_beszel_agent_token: [vault_beszel_agent_key]
+  properties:
+    vault_become_password:
+      type: string
+      description: The sudo password of the user on the server.
+    vault_samba_password:
+      type: string
+      description: Password to access the storage through samba.
+    vault_wifi_ssid:
+      type: string
+      description: WiFi that the server uses when ethernet doesn't work.
+    vault_wifi_password:
+      type: string
+    vault_copyparty_media_accounts:
+      type: array
+      description: |
+        Copyparty accounts with access to the media folder. Create the hash with the command
+        below, which prints it for the "name:password" typed on stdin. Take the <salt> from
+        homeserver/roles/copyparty/templates/copyparty.conf.j2.
+          docker run --rm -i copyparty/ac:1.20.26 --usernames --ah-alg argon2 --ah-salt <salt> --ah-gen -
+      items:
+        type: object
+        additionalProperties: false
+        required: [name, password_hash]
+        properties:
+          name:
+            type: string
+          password_hash:
+            type: string
+            pattern: "^\\+"
+    vault_jellyfin_api_key:
+      type: string
+      description: Jellyfin API key used to create backups.
+    vault_smtp_host:
+      type: string
+      description: SMTP server (with implicit TLS on port 465) used to send notification emails.
+    vault_smtp_user:
+      type: string
+    vault_smtp_password:
+      type: string
+    vault_notify_email:
+      type: string
+      description: The address that notification emails are sent to.
+    vault_healthchecks_ping_url:
+      type: string
+      description: >
+        Secret healthchecks.io URL that the server pings every 5 minutes.
+        healthchecks.io sends an email when the pings stop.
+    vault_paperless_secret_key:
+      type: string
+      description: >
+        Secret key that Paperless uses to sign sessions. Generate it with
+        python3 -c "import secrets; print(secrets.token_urlsafe(64))"
+    vault_beszel_agent_key:
+      type: string
+      description: >
+        Used to connect the Beszel agent to the hub. Retrieve it from the Beszel hub once it is
+        running. The agent is only set up when this is defined.
+    vault_beszel_agent_token:
+      type: string

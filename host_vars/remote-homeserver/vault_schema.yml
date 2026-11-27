@@ -1,0 +1,19 @@
+# JSON Schema describing the data in vault.yml. The playbook validates the vault against it.
+vault_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  additionalProperties: false
+  dependentRequired:
+    vault_beszel_agent_key: [vault_beszel_agent_token]
+    vault_beszel_agent_token: [vault_beszel_agent_key]
+  properties:
+    vault_become_password:
+      type: string
+      description: The sudo password of the user on the server.
+    vault_beszel_agent_key:
+      type: string
+      description: >
+        Used to connect the Beszel agent to the beszel hub. Get it by adding the system in the Beszel hub.
+    vault_beszel_agent_token:
+      type: string
+      description: Like the key, but per system.
