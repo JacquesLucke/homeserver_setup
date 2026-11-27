@@ -24,6 +24,7 @@
     - paperless
     - copyparty
     - control_panel
+    - zigbee2mqtt
     - homeassistant
     - audio
     - bluetooth_speaker

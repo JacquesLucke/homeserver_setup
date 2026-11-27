@@ -1,0 +1,39 @@
+- name: Create zigbee2mqtt data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+  loop:
+    - /srv/zigbee2mqtt
+    - /srv/zigbee2mqtt/data
+
+- name: Create mosquitto data directory
+  ansible.builtin.file:
+    path: /srv/zigbee2mqtt/mosquitto
+    state: directory
+    # No owner, because the mosquitto container changes it to its own user.
+    mode: "0750"
+
+- name: Copy mosquitto config
+  ansible.builtin.template:
+    src: mosquitto.conf.j2
+    dest: /srv/zigbee2mqtt/mosquitto.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart zigbee2mqtt
+
+- name: Copy zigbee2mqtt compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/zigbee2mqtt/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start zigbee2mqtt
+  community.docker.docker_compose_v2:
+    project_src: /srv/zigbee2mqtt
+    state: present

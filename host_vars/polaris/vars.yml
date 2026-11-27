@@ -46,9 +46,13 @@ beszel_port: 8090
 ledfx_port: 8888
 control_panel_port: 8070
 audiobookshelf_port: 13378
+zigbee2mqtt_port: 8080
 
 # If changed, the port also needs to be updated in Seerr's config file.
 jellyfin_port: 8096
+
+# Sonoff Dongle Plus MG24 with EmberZNet coordinator firmware.
+zigbee2mqtt_adapter: /dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Plus_MG24_a8bb117dc375f011b9e4a52f1045c30f-if00-port0
 
 # Home Assistant uses the host network, so this can't be remapped.
 homeassistant_port: 8123
@@ -64,6 +68,7 @@ landing_services:
   - { name: Paperless, port: "{{ paperless_port }}" }
   - { name: Copyparty, port: "{{ copyparty_port }}" }
   - { name: Home Assistant, port: "{{ homeassistant_port }}" }
+  - { name: Zigbee2MQTT, port: "{{ zigbee2mqtt_port }}" }
   - { name: LedFx, port: "{{ ledfx_port }}" }
   - { name: Beszel, port: "{{ beszel_port }}" }
   - { name: Control Panel, port: "{{ control_panel_port }}" }

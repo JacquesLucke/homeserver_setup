@@ -1,0 +1,7 @@
+# No authentication, because the broker is only reachable from localhost and
+# from the zigbee2mqtt container.
+listener 1883
+allow_anonymous true
+
+persistence true
+persistence_location /mosquitto/data/

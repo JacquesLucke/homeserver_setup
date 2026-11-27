@@ -1,0 +1,37 @@
+services:
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: ghcr.io/koenkk/zigbee2mqtt:2.14.3@sha256:fb4a6b0f6868ad1cd6a9996479802b2420e599c3463b62bbff8c8cd9a908f43a
+    depends_on:
+      - mosquitto
+    devices:
+      - "{{ zigbee2mqtt_adapter }}:/dev/zigbee"
+    volumes:
+      # Zigbee2MQTT writes configuration.yaml itself, including the generated
+      # network key. Settings managed here are set by the environment below.
+      - /srv/zigbee2mqtt/data:/app/data
+    environment:
+      TZ: Europe/Berlin
+      # Skip the setup wizard, everything it asks for is configured here.
+      Z2M_ONBOARD_NO_SERVER: "1"
+      ZIGBEE2MQTT_CONFIG_SERIAL_PORT: /dev/zigbee
+      ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: ember
+      ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtt://mosquitto:1883
+      ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED: "true"
+      ZIGBEE2MQTT_CONFIG_FRONTEND_ENABLED: "true"
+      ZIGBEE2MQTT_CONFIG_FRONTEND_PORT: "8080"
+    ports:
+      - "{{ zigbee2mqtt_port }}:8080"
+    restart: unless-stopped
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2.1.4-alpine@sha256:fa12172a051310efe5bcb7a6a11b77bd5faacb82cbacd7742aa758bf024fd8e4
+    volumes:
+      - /srv/zigbee2mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - /srv/zigbee2mqtt/mosquitto:/mosquitto/data
+    ports:
+      # Only reachable from localhost, which includes Home Assistant because it
+      # uses the host network.
+      - "127.0.0.1:1883:1883"
+    restart: unless-stopped
