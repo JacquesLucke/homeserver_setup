@@ -7,6 +7,11 @@
         data: "{{ lookup('ansible.builtin.unvault', inventory_dir ~ '/host_vars/' ~ inventory_hostname ~ '/vault.yml') | from_yaml }}"
         criteria: "{{ vault_schema }}"
         engine: ansible.utils.jsonschema
+    - name: Validate shared vault data against shared_vault_schema
+      ansible.utils.validate:
+        data: "{{ lookup('ansible.builtin.unvault', inventory_dir ~ '/group_vars/all/vault.yml') | from_yaml }}"
+        criteria: "{{ shared_vault_schema }}"
+        engine: ansible.utils.jsonschema
   roles:
     - updates
     - tools
@@ -14,5 +19,6 @@
     - docker
     - tailscale
     - homeassistant
+    - rest_server
     - beszel
     - landing

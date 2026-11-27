@@ -1,0 +1,14 @@
+# JSON Schema describing the data in vault.yml, which is shared by all servers. The playbooks
+# validate the vault against it.
+shared_vault_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  additionalProperties: false
+  required:
+    - vault_sirius_rest_server_polaris_login
+  properties:
+    vault_sirius_rest_server_polaris_login:
+      type: string
+      description: >
+        Password that polaris uses to log into the rest-server on sirius. This is not the
+        encryption password.

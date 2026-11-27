@@ -1,0 +1,32 @@
+- name: Create rest-server directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+  loop:
+    - /srv/rest-server
+    - /srv/rest-server/config
+    - /srv/rest-server/data
+
+- name: Copy rest-server users
+  ansible.builtin.template:
+    src: htpasswd.j2
+    dest: /srv/rest-server/config/htpasswd
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Copy rest-server compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /srv/rest-server/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start rest-server
+  community.docker.docker_compose_v2:
+    project_src: /srv/rest-server
+    state: present

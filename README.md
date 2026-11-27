@@ -16,6 +16,7 @@ uv run ansible-playbook sirius/setup.yml --ask-vault-pass
 # Edit vault commands.
 uv run ansible-vault edit host_vars/polaris/vault.yml
 uv run ansible-vault edit host_vars/sirius/vault.yml
+uv run ansible-vault edit group_vars/all/vault.yml
 ```
 
 ## Polaris
