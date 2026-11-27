@@ -37,9 +37,12 @@ MAX_BODY_SIZE = 100
 
 def unit_status(unit):
     # Reading the status needs no permissions.
-    result = subprocess.run(
-        ["systemctl", "is-active", unit], capture_output=True, text=True, timeout=10
-    )
+    try:
+        result = subprocess.run(
+            ["systemctl", "is-active", unit], capture_output=True, text=True, timeout=10
+        )
+    except subprocess.TimeoutExpired:
+        return "unknown"
     return result.stdout.strip()
 
 
@@ -96,7 +99,13 @@ class Handler(BaseHTTPRequestHandler):
         if unit is None:
             self.send_error(404)
             return
-        length = int(self.headers.get("Content-Length", 0))
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+        except ValueError:
+            length = -1
+        if length < 0:
+            self.send_error(400)
+            return
         if length > MAX_BODY_SIZE:
             self.send_error(413)
             return
@@ -104,11 +113,15 @@ class Handler(BaseHTTPRequestHandler):
         if verb not in VERBS:
             self.send_error(400)
             return
-        result = subprocess.run(
-            ["systemctl", "--no-ask-password", verb, unit],
-            stdin=subprocess.DEVNULL,
-            timeout=60,
-        )
+        try:
+            result = subprocess.run(
+                ["systemctl", "--no-ask-password", verb, unit],
+                stdin=subprocess.DEVNULL,
+                timeout=60,
+            )
+        except subprocess.TimeoutExpired:
+            self.send_error(504)
+            return
         if result.returncode != 0:
             self.send_error(500)
             return

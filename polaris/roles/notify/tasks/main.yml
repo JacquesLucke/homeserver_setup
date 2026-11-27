@@ -4,6 +4,8 @@
     name:
       - msmtp
       - msmtp-mta
+      # Provides the mail command, which e.g. smartd uses.
+      - bsd-mailx
     state: present
     update_cache: true
 
@@ -15,6 +17,17 @@
     group: root
     # Contains the SMTP password.
     mode: "0600"
+
+# Other programs like smartd send mail to root. The default entry covers all
+# local recipients.
+- name: Forward mail for local users to the notification address
+  ansible.builtin.copy:
+    content: |
+      default: {{ vault_notify_email }}
+    dest: /etc/aliases
+    owner: root
+    group: root
+    mode: "0644"
 
 - name: Install failure notification script
   ansible.builtin.template:
@@ -42,9 +55,20 @@
     state: present
     update_cache: true
 
+# The ping URL is secret, so it's kept out of the world-readable unit file and
+# the process list.
+- name: Configure heartbeat ping URL
+  ansible.builtin.copy:
+    content: |
+      url = {{ vault_healthchecks_ping_url | to_json }}
+    dest: /etc/heartbeat-curl.conf
+    owner: root
+    group: root
+    mode: "0600"
+
 - name: Install heartbeat service
-  ansible.builtin.template:
-    src: heartbeat.service.j2
+  ansible.builtin.copy:
+    src: heartbeat.service
     dest: /etc/systemd/system/heartbeat.service
     owner: root
     group: root

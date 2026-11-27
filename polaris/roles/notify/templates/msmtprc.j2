@@ -2,6 +2,8 @@ defaults
 auth on
 tls on
 syslog on
+# Maps local recipients like root to a real address.
+aliases /etc/aliases
 
 account smtp
 host {{ vault_smtp_host }}

@@ -1,3 +1,5 @@
+ansible_become_password: "{{ vault_become_password }}"
+
 # The Beszel hub runs on polaris and is reached over tailscale.
 beszel_hub_url: http://polaris:8090
 
