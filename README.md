@@ -1,6 +1,6 @@
 # Server Setup
 
-Ansible setup for some servers.
+Ansible setup for some servers. Each server is named after a star.
 
 Connection info is in [inventory.ini](inventory.ini).
 
@@ -24,52 +24,52 @@ uv run ansible-vault edit host_vars/sirius/vault.yml
 * Variables: [vars.yml](host_vars/polaris/vars.yml)
 * Vault: [vault.yml](host_vars/polaris/vault.yml) and [vault_schema.yml](host_vars/polaris/vault_schema.yml)
 
-### Initial Setup Commands
-
-```sh
-# Log-in to Tailscale.
-sudo tailscale up
-
-# Log-in to ente to enable backups.
-sudo -u ente ente-cli-wrapper account login --account personal --app photos
-
-# Create the initial SnapRAID parity in the background. Takes a few hours,
-# later syncs run nightly.
-sudo systemctl start --no-block snapraid-maintenance.service
-journalctl -fu snapraid-maintenance.service
-```
-
-### Update Steps
-
-1. Update Ubuntu packages and reboot if needed.
-    ```sh
-    sudo apt update
-    sudo apt full-upgrade
-    sudo apt autoremove
-    # Reboot if necessary.
-    [ -f /var/run/reboot-required ] && sudo reboot
-    ```
-2. Update container images and ente cli.
-
-
 ## Sirius
 
 * System: Raspberry Pi 5 with Raspberry Pi OS
 * Variables: [vars.yml](host_vars/sirius/vars.yml)
 * Vault: [vault.yml](host_vars/sirius/vault.yml) and [vault_schema.yml](host_vars/sirius/vault_schema.yml)
 
-### Initial Setup Commands
+## Initial Setup
+
+Besides running the playbook, some services require additional manual setup.
+
+### Tailscale
+
+Run the following command on the server which triggers a tailscale login.
+This is necessary before being able to connect to the server with tailscale.
 
 ```sh
-# Log-in to Tailscale.
 sudo tailscale up
 ```
 
-Afterwards, add the system in the Beszel hub on polaris, store its key and token in the vault and run the playbook again.
+### Ente
 
-### Update Steps
+One has to log into Ente to be able to use the CLI to e.g. do backups.
 
-1. Update packages and reboot if needed. Unattended upgrades don't cover packages from the Raspberry Pi repository (kernel, firmware, ...).
+```sh
+sudo -u ente ente-cli-wrapper account login --account personal --app photos
+```
+
+### Beszel
+
+Each machine needs to connect its beszel agent to the hub. For that one has to
+create an access key and token in the beszel hub UI and store it in the vault.
+Then run the playbook again.
+
+### Snapraid
+
+Running snapraid the first time can take a long time, so better do it manually.
+
+```sh
+sudo systemctl start --no-block snapraid-maintenance.service
+# See progress.
+journalctl -fu snapraid-maintenance.service
+```
+
+## Updates
+
+1. Update packages and reboot if needed..
     ```sh
     sudo apt update
     sudo apt full-upgrade
