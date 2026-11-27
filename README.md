@@ -2,21 +2,31 @@
 
 Ansible setup for some servers.
 
-## Homeserver
+Connection info is in [inventory.ini](inventory.ini).
 
-### Preparation
-
-This requires an Ubuntu system with a user that is allowed to run sudo. Also see `inventory.ini` for connection info.
+## Commands
 
 ```sh
 # Run on the machine controlling the server (not the server itself).
 
+# Updates can be deployed to each machine separately.
 uv run ansible-playbook homeserver/setup.yml --ask-vault-pass
+uv run ansible-playbook remote-homeserver/setup.yml --ask-vault-pass
+
+# Edit vault commands.
+uv run ansible-vault edit host_vars/homeserver/vault.yml
+uv run ansible-vault edit host_vars/remote-homeserver/vault.yml
 ```
 
-```sh
-# The following commands are run on the server.
+## Homeserver
 
+* System: Ubuntu Server
+* Variables: [vars.yml](host_vars/homeserver/vars.yml)
+* Vault: [vault.yml](host_vars/homeserver/vault.yml) and [vault_schema.yml](host_vars/homeserver/vault_schema.yml)
+
+### Initial Setup Commands
+
+```sh
 # Log-in to Tailscale.
 sudo tailscale up
 
@@ -28,38 +38,6 @@ sudo -u ente ente-cli-wrapper account login --account personal --app photos
 sudo systemctl start --no-block snapraid-maintenance.service
 journalctl -fu snapraid-maintenance.service
 ```
-
-### Services
-
-| Service        | Port   |
-| -------------- | ------ |
-| Landing page   | 80     |
-| Copyparty      | 3923   |
-| Seerr          | 5055   |
-| iperf3         | 5201   |
-| Paperless      | 8000   |
-| Control Panel  | 8070   |
-| Beszel         | 8090   |
-| LedFx          | 8888   |
-| Jellyfin       | 8096   |
-| Home Assistant | 8123   |
-| Cockpit        | 9090   |
-| Audiobookshelf | 13378  |
-
-### Internal Features
-
-* Samba, Ente Backup, SnapRAID, mergefs, health checks, email notifications, tailscale, bluetooth speaker.
-
-### Vault
-
-Some private data is stored in `host_vars/homeserver/vault.yml`.
-
-```sh
-# Edit the vault data (requires the right vault password).
-uv run ansible-vault edit host_vars/homeserver/vault.yml
-```
-
-See `host_vars/homeserver/vault_schema.yml` for the data stored in the vault.
 
 ### Update Steps
 
@@ -76,28 +54,27 @@ See `host_vars/homeserver/vault_schema.yml` for the data stored in the vault.
 
 ## Remote Homeserver
 
-This requires a Raspberry Pi 5 with Raspberry Pi OS.
+* System: Raspberry Pi 5 with Raspberry Pi OS
+* Variables: [vars.yml](host_vars/remote-homeserver/vars.yml)
+* Vault: [vault.yml](host_vars/remote-homeserver/vault.yml) and [vault_schema.yml](host_vars/remote-homeserver/vault_schema.yml)
+
+### Initial Setup Commands
 
 ```sh
-# Run on the machine controlling the server (not the server itself).
-
-uv run ansible-playbook remote-homeserver/setup.yml --ask-vault-pass
+# Log-in to Tailscale.
+sudo tailscale up
 ```
 
-### Services
+Afterwards, add the system in the Beszel hub on the homeserver, store its key and token in the vault and run the playbook again.
 
-| Service        | Port   |
-| -------------- | ------ |
-| Landing page   | 80     |
-| Home Assistant | 8123   |
+### Update Steps
 
-### Vault
-
-Some private data is stored in `host_vars/remote-homeserver/vault.yml`.
-
-```sh
-# Edit the vault data (requires the right vault password).
-uv run ansible-vault edit host_vars/remote-homeserver/vault.yml
-```
-
-See `host_vars/remote-homeserver/vault_schema.yml` for the data stored in the vault.
+1. Update packages and reboot if needed. Unattended upgrades don't cover packages from the Raspberry Pi repository (kernel, firmware, ...).
+    ```sh
+    sudo apt update
+    sudo apt full-upgrade
+    sudo apt autoremove
+    # Reboot if necessary.
+    [ -f /var/run/reboot-required ] && sudo reboot
+    ```
+2. Update container images.
