@@ -16,6 +16,7 @@
     - updates
     - tools
     - ssh
+    - sudo
     - docker
     - tailscale
     - homeassistant

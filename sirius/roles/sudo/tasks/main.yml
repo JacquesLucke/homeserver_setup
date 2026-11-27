@@ -1,0 +1,6 @@
+# This file is created when installing Raspberry Pi OS and allows sudo without
+# a password for simplicity. Remove the file for a bit more security.
+- name: Require password for sudo
+  ansible.builtin.file:
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: absent
