@@ -65,6 +65,19 @@ Each machine needs to connect its beszel agent to the hub. For that one has to
 create an access key and token in the beszel hub UI and store it in the vault.
 Then run the playbook again.
 
+### Restic
+
+The restic repository on sirius has to be initialized once before polaris can back up to it.
+
+```sh
+sudo restic-sirius init
+# Test the backup.
+sudo systemctl start backup.service
+sudo restic-sirius snapshots
+# See progress.
+journalctl -fu backup.service
+```
+
 ### Snapraid
 
 Running snapraid the first time can take a long time, so better do it manually.

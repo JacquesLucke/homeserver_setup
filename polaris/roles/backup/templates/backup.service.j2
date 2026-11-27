@@ -1,0 +1,14 @@
+[Unit]
+Description=Back up polaris to sirius
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor={{ backup_archives | map(attribute='pattern') | map('dirname') | unique | join(' ') }}
+OnFailure=notify-failure@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup
+# Restic only reports progress without a terminal when this is set. Once every 30 seconds.
+Environment=RESTIC_PROGRESS_FPS=0.0333
+Nice=19
+IOSchedulingClass=idle

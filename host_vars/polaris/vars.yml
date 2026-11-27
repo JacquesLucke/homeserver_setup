@@ -78,6 +78,20 @@ landing_services:
 ente_backup_time: 03:03:00
 jellyfin_backup_time: 03:30:00
 snapraid_sync_time: 03:40:00
+backup_time: 04:30:00
+
+# The newest backup matching each pattern is extracted and backed up to sirius. Audiobookshelf
+# and Home Assistant create their backups on a schedule that is configured in their UIs.
+backup_archives:
+  - { name: audiobookshelf, pattern: /mnt/storage/app_backup/audiobookshelf/*.audiobookshelf }
+  - { name: homeassistant, pattern: /mnt/storage/app_backup/homeassistant/*.tar }
+  - { name: jellyfin, pattern: /mnt/storage/app_backup/jellyfin/jellyfin-backup-*.zip }
+
+# Directory on the internal SSD that contains the extracted backups. It's cleared on every run.
+backup_staging_dir: /var/lib/backup-staging
+
+# Restic repository on sirius' rest-server.
+backup_repository: rest:http://sirius:8000/polaris/main
 
 # Name shown to people connecting via bluetooth.
 bluetooth_speaker_name: Wohnzimmer Teufel

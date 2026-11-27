@@ -1,0 +1,81 @@
+- name: Install restic and pydantic
+  ansible.builtin.apt:
+    name:
+      - restic
+      # Used by the backup script to load its config.
+      - python3-pydantic
+    state: present
+    update_cache: true
+
+- name: Create restic directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop:
+    - /etc/restic
+    - /var/cache/restic
+
+- name: Copy restic environment for sirius
+  ansible.builtin.template:
+    src: sirius.env.j2
+    dest: /etc/restic/sirius.env
+    owner: root
+    group: root
+    # Contains the passwords.
+    mode: "0600"
+
+- name: Install restic wrapper for sirius
+  ansible.builtin.template:
+    src: restic-sirius.j2
+    dest: /usr/local/bin/restic-sirius
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create backup config directory
+  ansible.builtin.file:
+    path: /etc/backup
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy backup config
+  ansible.builtin.copy:
+    content: "{{ {'staging_dir': backup_staging_dir, 'archives': backup_archives} | to_nice_json }}\n"
+    dest: /etc/backup/config.json
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install backup script
+  ansible.builtin.copy:
+    src: backup.py
+    dest: /usr/local/bin/backup
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install backup systemd units
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - backup.service
+    - backup.timer
+  notify: Reload systemd
+
+- name: Flush handlers so systemd knows the new units
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable backup timer
+  ansible.builtin.systemd_service:
+    name: backup.timer
+    state: started
+    enabled: true

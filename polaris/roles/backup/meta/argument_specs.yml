@@ -1,0 +1,41 @@
+# Ansible checks the variables against these specs before running the role.
+argument_specs:
+  main:
+    short_description: Back up polaris to the restic rest-server on sirius.
+    options:
+      backup_time:
+        type: str
+        required: true
+        description: Time of day when the backup runs, e.g. 04:30:00.
+      backup_archives:
+        type: list
+        elements: dict
+        required: true
+        description: The newest archive matching each pattern is extracted and backed up.
+        options:
+          name:
+            type: str
+            required: true
+            description: Name of the app, used as the directory name in the staging directory and as the restic tag.
+          pattern:
+            type: str
+            required: true
+            description: Glob pattern of the archives.
+      backup_staging_dir:
+        type: path
+        required: true
+        description: Directory that contains the extracted archives. It's cleared on every run.
+      backup_repository:
+        type: str
+        required: true
+        description: Restic repository URL.
+      vault_restic_sirius_password:
+        type: str
+        required: true
+        no_log: true
+        description: Encryption password of the restic repository.
+      vault_sirius_rest_server_polaris_login:
+        type: str
+        required: true
+        no_log: true
+        description: Password that polaris uses to log into the rest-server on sirius.

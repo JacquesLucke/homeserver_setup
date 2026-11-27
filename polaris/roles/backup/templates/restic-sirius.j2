@@ -1,0 +1,8 @@
+#!/bin/bash
+# Runs restic with the repository on sirius.
+# Use as: sudo restic-sirius <args>
+set -euo pipefail
+set -a
+source /etc/restic/sirius.env
+set +a
+exec restic "$@"

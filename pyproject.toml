@@ -8,6 +8,7 @@ dependencies = [
     "ansible-lint>=26.11.0",
     "bcrypt>=5.0.0",
     "passlib>=1.9.5",
+    "pydantic>=2.12",
     "pyright>=1.1.414",
     "ruff>=0.17.6",
 ]
