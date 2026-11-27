@@ -14,7 +14,7 @@ from gi.repository import GLib
 # Set in the systemd service.
 NAME = os.environ["BLUETOOTH_SPEAKER_NAME"]
 
-AGENT_PATH = "/homeserver/bluetooth_speaker_agent"
+AGENT_PATH = "/polaris/bluetooth_speaker_agent"
 
 
 class Rejected(dbus.DBusException):

@@ -1,5 +1,5 @@
-- name: Set up homeserver
-  hosts: homeserver
+- name: Set up polaris
+  hosts: polaris
   become: true
   pre_tasks:
     - name: Validate vault data against vault_schema

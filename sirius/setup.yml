@@ -1,5 +1,5 @@
-- name: Set up remote homeserver
-  hosts: remote-homeserver
+- name: Set up sirius
+  hosts: sirius
   become: true
   pre_tasks:
     - name: Validate vault data against vault_schema

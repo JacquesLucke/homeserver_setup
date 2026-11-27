@@ -1,7 +1,7 @@
 - name: Configure network
   ansible.builtin.template:
     src: netplan.yaml.j2
-    dest: /etc/netplan/50-homeserver.yaml
+    dest: /etc/netplan/50-polaris.yaml
     owner: root
     group: root
     # Contains the WiFi password.

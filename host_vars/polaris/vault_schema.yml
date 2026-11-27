@@ -36,7 +36,7 @@ vault_schema:
       description: |
         Copyparty accounts with access to the media folder. Create the hash with the command
         below, which prints it for the "name:password" typed on stdin. Take the <salt> from
-        homeserver/roles/copyparty/templates/copyparty.conf.j2.
+        polaris/roles/copyparty/templates/copyparty.conf.j2.
           docker run --rm -i copyparty/ac:1.20.26 --usernames --ah-alg argon2 --ah-salt <salt> --ah-gen -
       items:
         type: object

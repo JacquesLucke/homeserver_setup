@@ -1,5 +1,5 @@
-# The Beszel hub runs on the homeserver and is reached over tailscale.
-beszel_hub_url: http://homeserver:8090
+# The Beszel hub runs on polaris and is reached over tailscale.
+beszel_hub_url: http://polaris:8090
 
 landing_port: 80
 

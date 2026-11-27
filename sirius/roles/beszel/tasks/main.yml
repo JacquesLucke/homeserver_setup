@@ -1,4 +1,4 @@
-# Only the agent runs here. It sends the stats to the hub on the homeserver.
+# Only the agent runs here. It sends the stats to the hub on polaris.
 - name: Remind to add the system to the Beszel hub
   ansible.builtin.debug:
     msg: >-

@@ -10,19 +10,19 @@ Connection info is in [inventory.ini](inventory.ini).
 # Run on the machine controlling the server (not the server itself).
 
 # Updates can be deployed to each machine separately.
-uv run ansible-playbook homeserver/setup.yml --ask-vault-pass
-uv run ansible-playbook remote-homeserver/setup.yml --ask-vault-pass
+uv run ansible-playbook polaris/setup.yml --ask-vault-pass
+uv run ansible-playbook sirius/setup.yml --ask-vault-pass
 
 # Edit vault commands.
-uv run ansible-vault edit host_vars/homeserver/vault.yml
-uv run ansible-vault edit host_vars/remote-homeserver/vault.yml
+uv run ansible-vault edit host_vars/polaris/vault.yml
+uv run ansible-vault edit host_vars/sirius/vault.yml
 ```
 
-## Homeserver
+## Polaris
 
 * System: Ubuntu Server
-* Variables: [vars.yml](host_vars/homeserver/vars.yml)
-* Vault: [vault.yml](host_vars/homeserver/vault.yml) and [vault_schema.yml](host_vars/homeserver/vault_schema.yml)
+* Variables: [vars.yml](host_vars/polaris/vars.yml)
+* Vault: [vault.yml](host_vars/polaris/vault.yml) and [vault_schema.yml](host_vars/polaris/vault_schema.yml)
 
 ### Initial Setup Commands
 
@@ -52,11 +52,11 @@ journalctl -fu snapraid-maintenance.service
 2. Update container images and ente cli.
 
 
-## Remote Homeserver
+## Sirius
 
 * System: Raspberry Pi 5 with Raspberry Pi OS
-* Variables: [vars.yml](host_vars/remote-homeserver/vars.yml)
-* Vault: [vault.yml](host_vars/remote-homeserver/vault.yml) and [vault_schema.yml](host_vars/remote-homeserver/vault_schema.yml)
+* Variables: [vars.yml](host_vars/sirius/vars.yml)
+* Vault: [vault.yml](host_vars/sirius/vault.yml) and [vault_schema.yml](host_vars/sirius/vault_schema.yml)
 
 ### Initial Setup Commands
 
@@ -65,7 +65,7 @@ journalctl -fu snapraid-maintenance.service
 sudo tailscale up
 ```
 
-Afterwards, add the system in the Beszel hub on the homeserver, store its key and token in the vault and run the playbook again.
+Afterwards, add the system in the Beszel hub on polaris, store its key and token in the vault and run the playbook again.
 
 ### Update Steps
 
