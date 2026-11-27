@@ -1,0 +1,7 @@
+# Fail when the strictest profile isn't met anymore.
+profile: production
+
+# The vaults are encrypted, so they can't be linted.
+exclude_paths:
+  - host_vars/*/vault.yml
+  - group_vars/all/vault.yml

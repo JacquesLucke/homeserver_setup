@@ -24,6 +24,9 @@ uv run ansible-vault edit group_vars/all/vault.yml
 uv run pyright
 uv run ruff check
 uv run ruff format
+
+# Check the Ansible files. Also runs before deploying.
+uv run ansible-lint
 ```
 
 ## Polaris
