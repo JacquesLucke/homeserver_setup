@@ -78,6 +78,12 @@ sudo restic-sirius snapshots
 journalctl -fu backup.service
 ```
 
+To test a restore, the latest snapshot of each tag can be restored on the controlling machine.
+
+```sh
+uv run scripts/restore-from-sirius.py <target-dir>
+```
+
 ### Snapraid
 
 Running snapraid the first time can take a long time, so better do it manually.

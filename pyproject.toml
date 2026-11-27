@@ -15,7 +15,7 @@ dependencies = [
 
 # Checks the Python scripts that are deployed to the servers.
 [tool.pyright]
-include = ["polaris", "sirius"]
+include = ["polaris", "sirius", "scripts"]
 typeCheckingMode = "strict"
 pythonVersion = "3.14"
 
