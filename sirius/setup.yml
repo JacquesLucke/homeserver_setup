@@ -12,6 +12,16 @@
         data: "{{ lookup('ansible.builtin.unvault', inventory_dir ~ '/group_vars/all/vault.yml') | from_yaml }}"
         criteria: "{{ shared_vault_schema }}"
         engine: ansible.utils.jsonschema
+    - name: Check the Python scripts
+      ansible.builtin.command:
+        cmd: "uv run {{ item }}"
+        chdir: "{{ inventory_dir }}"
+      loop:
+        - pyright
+        - ruff check
+      delegate_to: localhost
+      become: false
+      changed_when: false
   roles:
     - updates
     - tools

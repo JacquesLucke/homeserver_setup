@@ -8,4 +8,15 @@ dependencies = [
     "ansible-lint>=26.11.0",
     "bcrypt>=5.0.0",
     "passlib>=1.9.5",
+    "pyright>=1.1.414",
+    "ruff>=0.17.6",
 ]
+
+# Checks the Python scripts that are deployed to the servers.
+[tool.pyright]
+include = ["polaris", "sirius"]
+typeCheckingMode = "strict"
+pythonVersion = "3.14"
+
+[tool.ruff]
+line-length = 100

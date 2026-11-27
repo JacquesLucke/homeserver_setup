@@ -19,6 +19,13 @@ uv run ansible-vault edit host_vars/sirius/vault.yml
 uv run ansible-vault edit group_vars/all/vault.yml
 ```
 
+```sh
+# Check the Python scripts that are deployed to the servers.
+uv run pyright
+uv run ruff check
+uv run ruff format
+```
+
 ## Polaris
 
 * System: Ubuntu Server

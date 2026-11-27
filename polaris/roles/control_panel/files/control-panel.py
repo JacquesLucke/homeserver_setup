@@ -35,18 +35,22 @@ VERBS = {"start", "stop"}
 MAX_BODY_SIZE = 100
 
 
-def unit_status(unit):
+def unit_status(unit: str) -> str:
     # Reading the status needs no permissions.
     try:
         result = subprocess.run(
-            ["systemctl", "is-active", unit], capture_output=True, text=True, timeout=10
+            ["systemctl", "is-active", unit],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
         )
     except subprocess.TimeoutExpired:
         return "unknown"
     return result.stdout.strip()
 
 
-def render_section(path):
+def render_section(path: str) -> str:
     status = unit_status(UNITS[path])
     return f"""
     <h3>{html.escape(TITLES[path])}</h3>
@@ -55,7 +59,7 @@ def render_section(path):
     <button onclick="control('{path}', 'stop')">Stop</button>"""
 
 
-def render_page():
+def render_page() -> bytes:
     sections = "".join(render_section(path) for path in UNITS)
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -118,6 +122,7 @@ class Handler(BaseHTTPRequestHandler):
                 ["systemctl", "--no-ask-password", verb, unit],
                 stdin=subprocess.DEVNULL,
                 timeout=60,
+                check=False,
             )
         except subprocess.TimeoutExpired:
             self.send_error(504)
@@ -127,7 +132,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         self.send_body((unit_status(unit) + "\n").encode(), "text/plain")
 
-    def send_body(self, body, content_type):
+    def send_body(self, body: bytes, content_type: str) -> None:
         self.send_response(200)
         self.send_header("Content-Type", f"{content_type}; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))

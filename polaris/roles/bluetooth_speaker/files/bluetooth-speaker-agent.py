@@ -4,6 +4,10 @@
 # accepted while pairing mode is on (see bluetooth-pairing.service), which makes the
 # adapter visible and pairable. Paired devices can always connect.
 
+# The dbus and gi modules have no type information, so strict checks don't work here.
+# pyright: basic
+# pyright: reportMissingImports=false
+
 import os
 
 import dbus
@@ -23,9 +27,7 @@ class Rejected(dbus.DBusException):
 
 def set_trusted(device):
     # Trusted devices can connect later on without asking the agent again.
-    props = dbus.Interface(
-        bus.get_object("org.bluez", device), "org.freedesktop.DBus.Properties"
-    )
+    props = dbus.Interface(bus.get_object("org.bluez", device), "org.freedesktop.DBus.Properties")
     props.Set("org.bluez.Device1", "Trusted", True)
 
 
@@ -65,9 +67,7 @@ class Agent(dbus.service.Object):
 
 
 def find_adapter():
-    manager = dbus.Interface(
-        bus.get_object("org.bluez", "/"), "org.freedesktop.DBus.ObjectManager"
-    )
+    manager = dbus.Interface(bus.get_object("org.bluez", "/"), "org.freedesktop.DBus.ObjectManager")
     for path, interfaces in manager.GetManagedObjects().items():
         if "org.bluez.Adapter1" in interfaces:
             return path
@@ -78,9 +78,7 @@ DBusGMainLoop(set_as_default=True)
 bus = dbus.SystemBus()
 
 agent = Agent(bus, AGENT_PATH)
-agent_manager = dbus.Interface(
-    bus.get_object("org.bluez", "/org/bluez"), "org.bluez.AgentManager1"
-)
+agent_manager = dbus.Interface(bus.get_object("org.bluez", "/org/bluez"), "org.bluez.AgentManager1")
 agent_manager.RegisterAgent(AGENT_PATH, "NoInputNoOutput")
 agent_manager.RequestDefaultAgent(AGENT_PATH)
 
