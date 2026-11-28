@@ -9,6 +9,7 @@
 # URLs like smb:// are accessed through the local gvfs mount, which is created if necessary.
 
 import shutil
+import signal
 import subprocess
 import tempfile
 import time
@@ -17,6 +18,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
+from types import FrameType
 from typing import Annotated
 
 import typer
@@ -140,7 +142,7 @@ def status(location: str) -> None:
     extension_counts: Counter[str] = Counter()
     total = 0
     failed = 0
-    for movie in scan(location):
+    for movie in scan(local_path(location)):
         total += 1
         print(f"{movie.progress} {movie.name}")
         if movie.streams is None:
@@ -170,13 +172,14 @@ def clean(
     dry: Annotated[bool, typer.Option(help="Only show what would be done.")] = False,
 ) -> None:
     """Re-encode files that break the codec rules. The originals are kept as backups."""
+    folder = local_path(location)
     total = 0
     failed = 0
     planned = 0
     cleaned = 0
     size_before = 0
     size_after = 0
-    for movie in scan(location):
+    for movie in scan(folder):
         total += 1
         if movie.streams is None:
             failed += 1
@@ -234,8 +237,7 @@ def delete_originals(
     for backup in backups:
         name = backup.relative_to(folder)
         # Don't delete the only copy, e.g. if the cleaned file was deleted to restore the backup.
-        original = backup.with_name(backup.name.removesuffix(BACKUP_SUFFIX))
-        if not original.exists() and not original.with_suffix(TARGET_EXTENSION).exists():
+        if not has_cleaned_file(backup):
             skipped += 1
             print(f"  skipped, cleaned file is missing: {name}", flush=True)
             continue
@@ -255,8 +257,12 @@ def delete_originals(
         print("  Dry run, nothing was changed.")
 
 
-def scan(location: str) -> Iterator[MovieFile]:
-    folder = local_path(location)
+def has_cleaned_file(backup: Path) -> bool:
+    original = backup.with_name(backup.name.removesuffix(BACKUP_SUFFIX))
+    return original.exists() or original.with_suffix(TARGET_EXTENSION).exists()
+
+
+def scan(folder: Path) -> Iterator[MovieFile]:
     print(f"Searching for movie files in {folder}...", flush=True)
     paths = sorted(
         path
@@ -410,12 +416,18 @@ def run_clean(
             # Copied next to the target first, so that the final rename is fast and can't leave a
             # partially written file behind.
             shutil.copyfile(temp_output, partial)
-            path.rename(backup)
+            # Interruptions are delayed until both renames are done, so that the original or the
+            # cleaned file is always in place.
+            old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
             try:
-                partial.rename(plan.target)
-            except OSError:
-                backup.rename(path)
-                raise
+                path.rename(backup)
+                try:
+                    partial.rename(plan.target)
+                except OSError:
+                    backup.rename(path)
+                    raise
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
         finally:
             partial.unlink(missing_ok=True)
 
@@ -427,14 +439,20 @@ def run_ffmpeg(command: list[str], duration: float | None, frame_rate: Fraction 
     with subprocess.Popen(command, stdout=subprocess.PIPE, text=True) as process:
         assert process.stdout is not None
         values: dict[str, str] = {}
-        for line in process.stdout:
-            key, _, value = line.strip().partition("=")
-            values[key] = value
-            if key == "progress":
-                line = format_progress(values, time.monotonic() - start, duration, frame_rate)
-                # Overwrite the previous progress line.
-                print(f"\r    encoding: {line}\033[K", end="", flush=True)
-        print()
+        try:
+            for line in process.stdout:
+                key, _, value = line.strip().partition("=")
+                values[key] = value
+                if key == "progress":
+                    line = format_progress(values, time.monotonic() - start, duration, frame_rate)
+                    # Overwrite the previous progress line.
+                    print(f"\r    encoding: {line}\033[K", end="", flush=True)
+        except BaseException:
+            # ffmpeg only receives Ctrl+C itself, not a SIGTERM sent to this script.
+            process.terminate()
+            raise
+        finally:
+            print()
     return process.returncode == 0
 
 
@@ -571,5 +589,12 @@ def codecs_of_type(streams: list[Stream], codec_type: str) -> list[str]:
     ]
 
 
+def raise_keyboard_interrupt(signum: int, frame: FrameType | None) -> None:
+    raise KeyboardInterrupt
+
+
 if __name__ == "__main__":
+    # Clean up after `kill` the same way as after Ctrl+C.
+    signal.signal(signal.SIGTERM, raise_keyboard_interrupt)
+
     app()
