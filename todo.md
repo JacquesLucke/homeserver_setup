@@ -7,3 +7,4 @@
 * Improve handling of user name vs hardcoded 1000
 * Occasionally send reminder email to install updates.
 * zigbee2mqtt frontend auth token
+* balance+consolidate mergerfs pool
