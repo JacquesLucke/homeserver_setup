@@ -5,10 +5,9 @@
 #   uv run scripts/codec-tools.py clean <folder>
 #   uv run scripts/codec-tools.py delete-originals --dry <folder>
 #   uv run scripts/codec-tools.py delete-originals <folder>
-#   uv run scripts/codec-tools.py status smb://homeserver/storage/media/Shorts
+#   uv run scripts/codec-tools.py status smb://polaris/storage/media/Shorts
 # URLs like smb:// are accessed through the local gvfs mount, which is created if necessary.
 
-import shutil
 import signal
 import subprocess
 import tempfile
@@ -406,16 +405,14 @@ def run_clean(
         temp_input = Path(temp_dir) / f"input{path.suffix}"
         temp_output = Path(temp_dir) / f"output{plan.target.suffix}"
         try:
-            print("    copying to temp folder...", flush=True)
-            shutil.copyfile(path, temp_input)
+            copy_with_progress(path, temp_input, "copying to temp folder")
             command = ffmpeg_command(temp_input, temp_output, plan.codec_args)
             if not run_ffmpeg(command, duration, frame_rate):
                 raise CleanError("ffmpeg failed")
             check_output(temp_input, temp_output)
-            print("    copying back...", flush=True)
             # Copied next to the target first, so that the final rename is fast and can't leave a
             # partially written file behind.
-            shutil.copyfile(temp_output, partial)
+            copy_with_progress(temp_output, partial, "copying back")
             # Interruptions are delayed until both renames are done, so that the original or the
             # cleaned file is always in place.
             old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
@@ -474,6 +471,12 @@ def format_progress(
     if done:
         parts.append(f"{format_duration(elapsed * (1 - done) / done)} left")
     return ", ".join(parts)
+
+
+def copy_with_progress(source: Path, target: Path, label: str) -> None:
+    print(f"    {label}:", flush=True)
+    subprocess.run(["gio", "copy", "--progress", source, target], check=True)
+    print()
 
 
 def format_duration(seconds: float) -> str:
