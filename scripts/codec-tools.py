@@ -525,7 +525,8 @@ def ffmpeg_command(input: Path, output: Path, codec_args: list[str]) -> list[str
 
 def print_counts(title: str, counts: Counter[str]) -> None:
     print(f"  {title}:")
-    for name, count in counts.most_common():
+    # Sorted by name instead of count, so that the output of different runs can be diffed.
+    for name, count in sorted(counts.items()):
         print(f"    {name:<12} {count:>6}")
 
 
