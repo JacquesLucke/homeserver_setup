@@ -486,9 +486,26 @@ def format_progress(
 
 
 def copy_with_progress(source: Path, target: Path, label: str) -> None:
-    print(f"    {label}:", flush=True)
-    subprocess.run(["gio", "copy", "--progress", source, target], check=True)
-    print()
+    # gio talks to gvfs directly instead of going through its FUSE mount, which was about 25%
+    # faster when copying from an SMB share.
+    command = ["gio", "copy", "--progress", source, target]
+    # gio separates its progress updates with carriage returns, which are read as line endings in
+    # text mode. They are printed again with indentation.
+    with subprocess.Popen(command, stdout=subprocess.PIPE, text=True) as process:
+        assert process.stdout is not None
+        try:
+            for line in process.stdout:
+                text = line.replace("\033[K", "").strip()
+                if text:
+                    # Overwrite the previous progress line.
+                    print(f"\r    {label}: {text}\033[K", end="", flush=True)
+        except BaseException:
+            process.terminate()
+            raise
+        finally:
+            print()
+    if process.returncode != 0:
+        raise CleanError(f"{label} failed")
 
 
 def format_duration(seconds: float) -> str:
