@@ -13,7 +13,7 @@ import subprocess
 import tempfile
 import time
 from collections import Counter
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
@@ -227,8 +227,7 @@ def delete_originals(
     """Delete the backups of the original files that the clean command kept."""
     folder = local_path(location)
     print(f"Searching for backups in {folder}...", flush=True)
-    backups = sorted(path for path in folder.rglob(f"*{BACKUP_SUFFIX}") if path.is_file())
-    print(f"Found {len(backups)} backups.", flush=True)
+    backups = find_files(folder, lambda path: path.name.endswith(BACKUP_SUFFIX), "backups")
 
     deleted = 0
     skipped = 0
@@ -261,14 +260,27 @@ def has_cleaned_file(backup: Path) -> bool:
     return original.exists() or original.with_suffix(TARGET_EXTENSION).exists()
 
 
+def find_files(folder: Path, matches: Callable[[Path], bool], description: str) -> list[Path]:
+    """Searches the folder recursively and keeps a line updated with the progress."""
+    found: list[Path] = []
+    searched_folders = 0
+    last_print = 0.0
+    for directory, _, file_names in folder.walk():
+        searched_folders += 1
+        found += [directory / name for name in file_names if matches(directory / name)]
+        now = time.monotonic()
+        if now - last_print >= 0.2:
+            last_print = now
+            # Overwrite the previous progress line.
+            progress = f"searched {searched_folders} folders, found {len(found)} {description}"
+            print(f"\r  {progress}\033[K", end="", flush=True)
+    print(f"\r  searched {searched_folders} folders, found {len(found)} {description}\033[K")
+    return sorted(found)
+
+
 def scan(folder: Path) -> Iterator[MovieFile]:
     print(f"Searching for movie files in {folder}...", flush=True)
-    paths = sorted(
-        path
-        for path in folder.rglob("*")
-        if path.suffix.lower() in MOVIE_EXTENSIONS and path.is_file()
-    )
-    print(f"Found {len(paths)} movie files.", flush=True)
+    paths = find_files(folder, lambda path: path.suffix.lower() in MOVIE_EXTENSIONS, "movie files")
 
     width = len(str(len(paths)))
     for index, path in enumerate(paths, start=1):
