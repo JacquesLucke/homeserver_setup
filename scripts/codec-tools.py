@@ -135,9 +135,10 @@ app = typer.Typer(no_args_is_help=True)
 
 @app.command()
 def status(location: str) -> None:
-    """Print the video and audio codecs of every movie file in the folder or URL."""
+    """Print the video, audio and subtitle codecs of every movie file in the folder or URL."""
     video_counts: Counter[str] = Counter()
     audio_counts: Counter[str] = Counter()
+    subtitle_counts: Counter[str] = Counter()
     extension_counts: Counter[str] = Counter()
     total = 0
     failed = 0
@@ -150,11 +151,14 @@ def status(location: str) -> None:
             continue
         video = codecs_of_type(movie.streams, "video")
         audio = codecs_of_type(movie.streams, "audio")
+        subtitle = codecs_of_type(movie.streams, "subtitle")
         print(f"    video: {', '.join(video) or '-'}")
-        print(f"    audio: {', '.join(audio) or '-'}", flush=True)
+        print(f"    audio: {', '.join(audio) or '-'}")
+        print(f"    subtitle: {', '.join(subtitle) or '-'}", flush=True)
         # Count every codec once per file, so the summary shows how many files use it.
         video_counts.update(set(video))
         audio_counts.update(set(audio))
+        subtitle_counts.update(set(subtitle))
         extension_counts[movie.path.suffix.lower()] += 1
 
     print()
@@ -163,6 +167,7 @@ def status(location: str) -> None:
     print_counts("Containers", extension_counts)
     print_counts("Video codecs", video_counts)
     print_counts("Audio codecs", audio_counts)
+    print_counts("Subtitle codecs", subtitle_counts)
 
 
 @app.command()
@@ -577,7 +582,7 @@ def print_counts(title: str, counts: Counter[str]) -> None:
     print(f"  {title}:")
     # Sorted by name instead of count, so that the output of different runs can be diffed.
     for name, count in sorted(counts.items()):
-        print(f"    {name:<12} {count:>6}")
+        print(f"    {name:<20} {count:>6}")
 
 
 def local_path(location: str) -> Path:
