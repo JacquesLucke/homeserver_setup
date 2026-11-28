@@ -3,6 +3,8 @@
 #   uv run scripts/codec-tools.py status <folder>
 #   uv run scripts/codec-tools.py clean --dry <folder>
 #   uv run scripts/codec-tools.py clean <folder>
+#   uv run scripts/codec-tools.py delete-originals --dry <folder>
+#   uv run scripts/codec-tools.py delete-originals <folder>
 #   uv run scripts/codec-tools.py status smb://homeserver/storage/media/Shorts
 # URLs like smb:// are accessed through the local gvfs mount, which is created if necessary.
 
@@ -213,6 +215,44 @@ def clean(
     else:
         print(f"  Cleaned: {cleaned} ({format_size(size_before)} -> {format_size(size_after)})")
         print(f"  Backups of the originals end with {BACKUP_SUFFIX}.")
+
+
+@app.command()
+def delete_originals(
+    location: str,
+    dry: Annotated[bool, typer.Option(help="Only show what would be deleted.")] = False,
+) -> None:
+    """Delete the backups of the original files that the clean command kept."""
+    folder = local_path(location)
+    print(f"Searching for backups in {folder}...", flush=True)
+    backups = sorted(path for path in folder.rglob(f"*{BACKUP_SUFFIX}") if path.is_file())
+    print(f"Found {len(backups)} backups.", flush=True)
+
+    deleted = 0
+    skipped = 0
+    freed = 0
+    for backup in backups:
+        name = backup.relative_to(folder)
+        # Don't delete the only copy, e.g. if the cleaned file was deleted to restore the backup.
+        original = backup.with_name(backup.name.removesuffix(BACKUP_SUFFIX))
+        if not original.exists() and not original.with_suffix(TARGET_EXTENSION).exists():
+            skipped += 1
+            print(f"  skipped, cleaned file is missing: {name}", flush=True)
+            continue
+        size = backup.stat().st_size
+        if not dry:
+            backup.unlink()
+        deleted += 1
+        freed += size
+        print(f"  {'would delete' if dry else 'deleted'}: {name} ({format_size(size)})", flush=True)
+
+    print()
+    print("Summary:")
+    print(f"  {'Would be deleted' if dry else 'Deleted'}: {deleted} ({format_size(freed)})")
+    if skipped:
+        print(f"  Skipped: {skipped}")
+    if dry:
+        print("  Dry run, nothing was changed.")
 
 
 def scan(location: str) -> Iterator[MovieFile]:
